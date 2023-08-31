@@ -5,15 +5,35 @@
 
 const std::vector<const char*> App::s_VALIDATION_LAYERS = {"VK_LAYER_LUNARG_standard_validation"};
 
-std::string toString(VkDebugUtilsMessageTypeFlagsEXT type)
+std::string toString(VkDebugUtilsMessageTypeFlagsEXT _type)
 {
-    switch(type)
+    switch(_type)
     {
         case VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT: return "general";
         case VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT: return "validation";
         case VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT: return "performance";
-        default: return "unknow VkDebugUtilsMessageTypeFlagsEXT";
+        default: break;
     }
+
+    if(_type & (VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT))
+    {
+        return "general|validation|performance";
+    }
+    else if(_type & (VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT))
+    {
+        return "general|validation";
+    }
+    else if(_type & (VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT))
+    {
+        return "validation|performance";
+    }
+    else if(_type & (VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT))
+    {
+        return "general|performance";
+    }
+
+    return "unknonw";
 }
 
 void App::run()
@@ -24,26 +44,30 @@ void App::run()
     cleanup();
 }
 
-VkBool32 App::debugUtilCallback(VkDebugUtilsMessageSeverityFlagBitsEXT severity,
-                                VkDebugUtilsMessageTypeFlagsEXT type,
-                                const VkDebugUtilsMessengerCallbackDataEXT* callbackData,
+VkBool32 App::debugUtilCallback(VkDebugUtilsMessageSeverityFlagBitsEXT _severity,
+                                VkDebugUtilsMessageTypeFlagsEXT _type,
+                                const VkDebugUtilsMessengerCallbackDataEXT* _callbackData,
                                 void*)
 {
-    switch(type)
+    if(_severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
     {
-        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
-            std::cout << "Verbose (" << toString(type) << "): " << callbackData->pMessage << std::endl;
-            break;
-        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-            std::cout << "Info (" << toString(type) << "): " << callbackData->pMessage << std::endl;
-            break;
-        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-            std::cerr << "Warning (" << toString(type) << "): " << callbackData->pMessage << std::endl;
-            break;
-        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
-            std::cerr << "Error (" << toString(type) << "): " << callbackData->pMessage << std::endl;
-            break;
-        default: std::cout << "Unknow (" << toString(type) << "): " << callbackData->pMessage << std::endl; break;
+        std::cerr << "Error (" << toString(_type) << "): " << _callbackData->pMessage << std::endl;
+    }
+    else if(_type & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+    {
+        std::cerr << "Warning (" << toString(_type) << "): " << _callbackData->pMessage << std::endl;
+    }
+    else if(_type & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
+    {
+        std::cout << "Info (" << toString(_type) << "): " << _callbackData->pMessage << std::endl;
+    }
+    else if(_type & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
+    {
+        std::cout << "Verbose (" << toString(_type) << "): " << _callbackData->pMessage << std::endl;
+    }
+    else
+    {
+        std::cout << "Unknown (" << toString(_type) << "): " << _callbackData->pMessage << std::endl;
     }
 
     return VK_FALSE;
@@ -71,15 +95,6 @@ void App::initVulkan() { createInstance(); }
 
 void App::createInstance()
 {
-    // Application information
-    VkApplicationInfo appInfo{};
-    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "VulkanNgine";
-    appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.pEngineName = "No Engine";
-    appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_0;
-
     // Needed extensions
     uint32_t glfwExtensionCount = 0;
     const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -96,6 +111,7 @@ void App::createInstance()
         throw std::runtime_error("One or more required extensions is not available");
     }
 
+    // Optional extensions
     const bool isDebugUtilSupported = checkExtensionSupport({VK_EXT_DEBUG_UTILS_EXTENSION_NAME});
     if(isDebugUtilSupported)
     {
@@ -121,45 +137,56 @@ void App::createInstance()
         }
     }
 
+    // Application information
+    VkApplicationInfo appInfo{};
+    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    appInfo.pApplicationName = "VulkanNgine";
+    appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+    appInfo.pEngineName = "No Engine";
+    appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+    appInfo.apiVersion = VK_API_VERSION_1_0;
+
     // Instance information
-    VkInstanceCreateInfo createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    createInfo.pApplicationInfo = &appInfo;
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(requiredExtensions.size());
-    createInfo.ppEnabledExtensionNames = requiredExtensions.data();
-    createInfo.enabledLayerCount = s_ENABLE_VALIDATION_LAYERS ? static_cast<uint32_t>(s_VALIDATION_LAYERS.size()) : 0;
-    createInfo.ppEnabledLayerNames = s_ENABLE_VALIDATION_LAYERS ? s_VALIDATION_LAYERS.data() : nullptr;
+    VkInstanceCreateInfo instanceInfo{};
+    instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    instanceInfo.pApplicationInfo = &appInfo;
+    instanceInfo.enabledExtensionCount = static_cast<uint32_t>(requiredExtensions.size());
+    instanceInfo.ppEnabledExtensionNames = requiredExtensions.data();
+    instanceInfo.enabledLayerCount = s_ENABLE_VALIDATION_LAYERS ? static_cast<uint32_t>(s_VALIDATION_LAYERS.size()) : 0;
+    instanceInfo.ppEnabledLayerNames = s_ENABLE_VALIDATION_LAYERS ? s_VALIDATION_LAYERS.data() : nullptr;
+
+    // Setup debug utils
+    VkDebugUtilsMessengerCreateInfoEXT debugutilMessengerInfo{};
+    if(isDebugUtilSupported)
+    {
+        debugutilMessengerInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+        debugutilMessengerInfo.messageSeverity =
+          VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
+          VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+        debugutilMessengerInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                                             VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                                             VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+        debugutilMessengerInfo.pfnUserCallback = debugUtilCallback;
+        debugutilMessengerInfo.pUserData = nullptr;
+
+        instanceInfo.pNext = &debugutilMessengerInfo;
+    }
 
     // Create the instance
-    if(vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS)
+    if(vkCreateInstance(&instanceInfo, nullptr, &m_instance) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create instance");
     }
 
-    // Setup debug utils
-    if(isDebugUtilSupported)
+    auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
+      vkGetInstanceProcAddr(m_instance, "vkCreateDebugUtilsMessengerEXT"));
+    if(func != nullptr)
     {
-        VkDebugUtilsMessengerCreateInfoEXT createInfoExt{};
-        createInfoExt.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-        createInfoExt.messageSeverity =
-          VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
-          VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-        createInfoExt.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                                    VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                                    VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-        createInfoExt.pfnUserCallback = debugUtilCallback;
-        createInfoExt.pUserData = nullptr;
-
-        auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
-          vkGetInstanceProcAddr(m_instance, "vkCreateDebugUtilsMessengerEXT"));
-        if(func != nullptr)
-        {
-            func(m_instance, &createInfoExt, nullptr, &m_debugutilMessengerExt);
-        }
-        else
-        {
-            throw std::runtime_error("failed to get instance process address");
-        }
+        func(m_instance, &debugutilMessengerInfo, nullptr, &m_debugutilMessenger);
+    }
+    else
+    {
+        throw std::runtime_error("failed to get instance process address");
     }
 }
 
@@ -243,7 +270,7 @@ void App::cleanup()
           vkGetInstanceProcAddr(m_instance, "vkDestroyDebugUtilsMessengerEXT"));
         if(func != nullptr)
         {
-            func(m_instance, m_debugutilMessengerExt, nullptr);
+            func(m_instance, m_debugutilMessenger, nullptr);
         }
     }
 

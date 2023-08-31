@@ -22,10 +22,10 @@ class App
     static constexpr bool s_ENABLE_VALIDATION_LAYERS = true;
 #endif
 
-    static VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilCallback(VkDebugUtilsMessageSeverityFlagBitsEXT severity,
-                                                            VkDebugUtilsMessageTypeFlagsEXT type,
-                                                            const VkDebugUtilsMessengerCallbackDataEXT* callbackData,
-                                                            void* userData);
+    static VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilCallback(VkDebugUtilsMessageSeverityFlagBitsEXT _severity,
+                                                            VkDebugUtilsMessageTypeFlagsEXT _type,
+                                                            const VkDebugUtilsMessengerCallbackDataEXT* _callbackData,
+                                                            void* _userData);
 
     void initWindow();
 
@@ -45,5 +45,5 @@ class App
 
     VkInstance m_instance{nullptr};
 
-    VkDebugUtilsMessengerEXT m_debugutilMessengerExt{nullptr};
+    VkDebugUtilsMessengerEXT m_debugutilMessenger{nullptr};
 };
