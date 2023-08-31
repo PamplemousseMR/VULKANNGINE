@@ -14,7 +14,7 @@ class App
 
     static constexpr int s_HEIGHT = 600;
 
-    static const std::vector<std::string> s_VALIDATION_LAYERS;
+    static const std::vector<const char*> s_VALIDATION_LAYERS;
 
 #ifdef NDEBUG
     static constexpr bool s_ENABLE_VALIDATION_LAYERS = false;
@@ -22,15 +22,20 @@ class App
     static constexpr bool s_ENABLE_VALIDATION_LAYERS = true;
 #endif
 
+    static VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilCallback(VkDebugUtilsMessageSeverityFlagBitsEXT severity,
+                                                            VkDebugUtilsMessageTypeFlagsEXT type,
+                                                            const VkDebugUtilsMessengerCallbackDataEXT* callbackData,
+                                                            void* userData);
+
     void initWindow();
 
     void initVulkan();
 
     void createInstance();
 
-    bool checkExtensionSupport(const std::vector<std::string>& _extensions) const;
+    bool checkExtensionSupport(const std::vector<const char*>& _extensions) const;
 
-    bool checkValidationLayerSupport(const std::vector<std::string>& _validationLayers) const;
+    bool checkValidationLayerSupport(const std::vector<const char*>& _validationLayers) const;
 
     void mainLoop();
 
@@ -39,4 +44,6 @@ class App
     GLFWwindow* m_window{nullptr};
 
     VkInstance m_instance{nullptr};
+
+    VkDebugUtilsMessengerEXT m_debugutilMessengerExt{nullptr};
 };
