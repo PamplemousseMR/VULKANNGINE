@@ -37,13 +37,17 @@ class App
 
     bool checkValidationLayerSupport(const std::vector<const char*>& _validationLayers) const;
 
+    void createPhysicalDevice();
+
     void mainLoop();
 
     void cleanup();
 
     GLFWwindow* m_window{nullptr};
 
-    VkInstance m_instance{nullptr};
+    VkInstance m_instance{VK_NULL_HANDLE};
 
-    VkDebugUtilsMessengerEXT m_debugutilMessenger{nullptr};
+    VkDebugUtilsMessengerEXT m_debugutilMessenger{VK_NULL_HANDLE};
+
+    VkPhysicalDevice m_physicalDevice{VK_NULL_HANDLE};
 };

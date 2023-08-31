@@ -1,6 +1,7 @@
 #include "App.hpp"
 
 #include <iostream>
+#include <optional>
 #include <stdexcept>
 
 const std::vector<const char*> App::s_VALIDATION_LAYERS = {"VK_LAYER_LUNARG_standard_validation"};
@@ -91,7 +92,11 @@ void App::initWindow()
     }
 }
 
-void App::initVulkan() { createInstance(); }
+void App::initVulkan()
+{
+    createInstance();
+    createPhysicalDevice();
+}
 
 void App::createInstance()
 {
@@ -251,6 +256,59 @@ bool App::checkValidationLayerSupport(const std::vector<const char*>& _layers) c
     }
 
     return true;
+}
+
+void App::createPhysicalDevice()
+{
+    // Device
+    uint32_t deviceCount = 0;
+    vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
+
+    if(deviceCount == 0)
+    {
+        throw std::runtime_error("No device found");
+    }
+
+    std::vector<VkPhysicalDevice> availableDevices(deviceCount);
+    vkEnumeratePhysicalDevices(m_instance, &deviceCount, availableDevices.data());
+
+    for(const VkPhysicalDevice& device : availableDevices)
+    {
+        VkPhysicalDeviceProperties deviceProperties;
+        vkGetPhysicalDeviceProperties(device, &deviceProperties);
+
+        std::cout << "Device " << deviceProperties.deviceID << " name " << deviceProperties.deviceName << std::endl;
+
+        // Queue families
+        uint32_t queueFamilyCount = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+        std::vector<VkQueueFamilyProperties> availableQueueFamilies(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, availableQueueFamilies.data());
+
+        std::optional<uint32_t> graphicsFamily;
+
+        for(size_t i = 0; i < availableQueueFamilies.size(); ++i)
+        {
+            if(availableQueueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+            {
+                graphicsFamily = i;
+            }
+        }
+
+        if(graphicsFamily.has_value())
+        {
+            m_physicalDevice = device;
+            std::cout << "Selected physical device " << deviceProperties.deviceID << " name "
+                      << deviceProperties.deviceName << std::endl;
+            break;
+        }
+    }
+
+    if(m_physicalDevice == VK_NULL_HANDLE)
+    {
+        throw std::runtime_error("No available physical device");
+    }
 }
 
 void App::mainLoop()
