@@ -9,6 +9,10 @@ class App
     void run();
 
   private:
+    static constexpr int s_WIDTH = 800;
+
+    static constexpr int s_HEIGHT = 600;
+
     void initWindow();
 
     void initVulkan();
@@ -16,4 +20,6 @@ class App
     void mainLoop();
 
     void cleanup();
+
+    GLFWwindow* m_window{nullptr};
 };
