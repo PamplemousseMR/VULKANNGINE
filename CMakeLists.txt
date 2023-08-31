@@ -9,8 +9,8 @@ project("VULKANNGINE" C CXX)
 #               LIBRARIES
 #=======================================
 
-#find_package(GLM REQUIRED)
 find_package(glfw3 REQUIRED CONFIG)
+find_package(glm REQUIRED CONFIG)
 
 #=======================================
 #                ENGINE

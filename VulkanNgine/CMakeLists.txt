@@ -10,3 +10,5 @@ set(VKNGINE_SRC
 set(VKNGINE_HEADER)
 
 add_executable(${VKNGINE_APP_NAME} ${VKNGINE_SRC} ${VKNGINE_HEADER})
+
+target_link_libraries(${VKNGINE_APP_NAME} PRIVATE glfw glm::glm)
