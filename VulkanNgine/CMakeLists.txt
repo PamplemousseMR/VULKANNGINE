@@ -5,9 +5,11 @@
 set(VKNGINE_APP_NAME VKViewer)
 
 set(VKNGINE_SRC
+        App.cpp
         main.cpp)
 
-set(VKNGINE_HEADER)
+set(VKNGINE_HEADER
+        App.hpp)
 
 add_executable(${VKNGINE_APP_NAME} ${VKNGINE_SRC} ${VKNGINE_HEADER})
 
