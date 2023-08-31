@@ -2,6 +2,7 @@
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include <vulkan/vulkan.hpp>
 
 class App
 {
@@ -17,9 +18,13 @@ class App
 
     void initVulkan();
 
+    void createInstance();
+
     void mainLoop();
 
     void cleanup();
 
     GLFWwindow* m_window{nullptr};
+
+    VkInstance m_instance{nullptr};
 };
