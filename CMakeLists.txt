@@ -11,6 +11,7 @@ project("VULKANNGINE" C CXX)
 
 find_package(glfw3 REQUIRED CONFIG)
 find_package(glm REQUIRED CONFIG)
+find_package(Vulkan REQUIRED)
 
 #=======================================
 #                ENGINE
