@@ -11,7 +11,7 @@ class PhysicalDevice
 
     struct QueueFamily
     {
-        const size_t m_index;
+        const uint32_t m_index;
         unsigned m_count{0};
         bool m_graphics{false};
         bool m_compute{false};
@@ -20,18 +20,20 @@ class PhysicalDevice
         bool m_protected{false};
     };
 
+    inline VkPhysicalDevice get() const { return m_physicalDevice; }
+
     inline const std::vector<QueueFamily>& getQueueFamilies() const { return m_queueFamilies; }
 
     inline const std::string& getName() { return m_name; }
 
   private:
-    PhysicalDevice(const Instance& _instance, const std::string& _name, const std::vector<QueueFamily>& _queueFamilies);
+    PhysicalDevice(VkPhysicalDevice _physicalDevice,
+                   const std::string& _name,
+                   const std::vector<QueueFamily>& _queueFamilies);
 
-    const Instance& m_instance;
+    VkPhysicalDevice m_physicalDevice{VK_NULL_HANDLE};
 
     const std::string m_name;
 
     std::vector<QueueFamily> m_queueFamilies{};
-
-    VkPhysicalDevice m_physicalDevice{VK_NULL_HANDLE};
 };

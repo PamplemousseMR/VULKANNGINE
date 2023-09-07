@@ -5,7 +5,7 @@
 std::vector<PhysicalDevice> PhysicalDevice::getDevices(const Instance& _instance)
 {
     uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(_instance, &deviceCount, nullptr);
+    vkEnumeratePhysicalDevices(_instance.get(), &deviceCount, nullptr);
 
     if(deviceCount == 0)
     {
@@ -13,7 +13,7 @@ std::vector<PhysicalDevice> PhysicalDevice::getDevices(const Instance& _instance
     }
 
     std::vector<VkPhysicalDevice> availableDevices(deviceCount);
-    vkEnumeratePhysicalDevices(_instance, &deviceCount, availableDevices.data());
+    vkEnumeratePhysicalDevices(_instance.get(), &deviceCount, availableDevices.data());
 
     std::vector<PhysicalDevice> devices;
 
@@ -33,7 +33,7 @@ std::vector<PhysicalDevice> PhysicalDevice::getDevices(const Instance& _instance
 
         std::vector<QueueFamily> queueFamilies;
 
-        for(size_t i = 0; i < availableQueueFamilies.size(); ++i)
+        for(uint32_t i = 0; i < queueFamilyCount; ++i)
         {
             QueueFamily queueFamily{i};
 
@@ -63,16 +63,16 @@ std::vector<PhysicalDevice> PhysicalDevice::getDevices(const Instance& _instance
             queueFamilies.push_back(queueFamily);
         }
 
-        devices.push_back(PhysicalDevice(_instance, physicalDeviceProperties.deviceName, queueFamilies));
+        devices.push_back(PhysicalDevice(device, physicalDeviceProperties.deviceName, queueFamilies));
     }
 
     return devices;
 }
 
-PhysicalDevice::PhysicalDevice(const Instance& _instance,
+PhysicalDevice::PhysicalDevice(VkPhysicalDevice _physicalDevice,
                                const std::string& _name,
                                const std::vector<QueueFamily>& _queueFamilies)
-  : m_instance(_instance)
+  : m_physicalDevice(_physicalDevice)
   , m_name(_name)
   , m_queueFamilies(_queueFamilies)
 {}

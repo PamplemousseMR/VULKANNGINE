@@ -67,13 +67,9 @@ VkBool32 debugUtilCallback(VkDebugUtilsMessageSeverityFlagBitsEXT _severity,
 }
 
 Instance::Instance(const Window& _window)
-  : m_window(_window)
-{}
-
-void Instance::create()
 {
     // Get required extensions
-    std::vector<const char*> requiredExtensions = m_window.getRequiredInstanceExtensions();
+    std::vector<const char*> requiredExtensions = _window.getRequiredInstanceExtensions();
 
     for(const std::string& ex : requiredExtensions)
     {
@@ -110,7 +106,7 @@ void Instance::create()
     // Application information
     VkApplicationInfo applicationInfo{};
     applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    applicationInfo.pApplicationName = m_window.getName().c_str();
+    applicationInfo.pApplicationName = _window.getName().c_str();
     applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     applicationInfo.pEngineName = "No Engine";
     applicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -164,7 +160,7 @@ void Instance::create()
     }
 }
 
-void Instance::destroy()
+Instance::~Instance()
 {
     if(m_debugUtilSupported)
     {
@@ -178,8 +174,6 @@ void Instance::destroy()
 
     vkDestroyInstance(m_instance, nullptr);
 }
-
-Instance::operator VkInstance() const { return m_instance; }
 
 bool Instance::checkExtensionSupport(const std::vector<const char*>& _extensions) const
 {

@@ -15,11 +15,9 @@ class Window
 
     Window(const std::string& _name);
 
-    void create();
+    ~Window();
 
     void run();
-
-    void destroy();
 
     std::vector<const char*> getRequiredInstanceExtensions() const;
 

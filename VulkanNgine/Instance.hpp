@@ -9,15 +9,6 @@
 class Instance
 {
   public:
-    Instance(const Window& _window);
-
-    void create();
-
-    void destroy();
-
-    operator VkInstance() const;
-
-  private:
     static const std::vector<const char*> s_VALIDATION_LAYERS;
 
 #ifdef NDEBUG
@@ -26,13 +17,18 @@ class Instance
     static constexpr bool s_ENABLE_VALIDATION_LAYERS = true;
 #endif
 
+    Instance(const Window& _window);
+
+    ~Instance();
+
+    inline VkInstance get() const { return m_instance; }
+
+  private:
     bool checkExtensionSupport(const std::vector<const char*>& _extensions) const;
 
     bool checkLayerSupport(const std::vector<const char*>& _layers) const;
 
     bool m_debugUtilSupported{false};
-
-    const Window& m_window;
 
     VkInstance m_instance{VK_NULL_HANDLE};
 

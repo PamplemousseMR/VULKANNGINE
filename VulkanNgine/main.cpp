@@ -1,4 +1,5 @@
 #include "Instance.hpp"
+#include "LogicalDevice.hpp"
 #include "PhysicalDevice.hpp"
 #include "Window.hpp"
 #include "logger.hpp"
@@ -9,10 +10,8 @@
 int main()
 {
     Window window("VulkanNgine");
-    window.create();
 
     Instance instance(window);
-    instance.create();
 
     PhysicalDevice physicalDevice = PhysicalDevice::getDevices(instance)[0];
     VKNGINE_LOG_VERBOSE("Selected physical device " << physicalDevice.getName());
@@ -26,10 +25,9 @@ int main()
         VKNGINE_LOG_VERBOSE("       Protected " << queueFamily.m_protected);
     }
 
-    window.run();
+    LogicalDevice logicalDevice(physicalDevice, VK_QUEUE_GRAPHICS_BIT);
 
-    instance.destroy();
-    window.destroy();
+    window.run();
 
     return EXIT_SUCCESS;
 }

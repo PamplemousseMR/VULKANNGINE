@@ -6,9 +6,6 @@
 
 Window::Window(const std::string& _name)
   : m_name(_name)
-{}
-
-void Window::create()
 {
     if(glfwInit() != GLFW_TRUE)
     {
@@ -26,19 +23,19 @@ void Window::create()
     }
 }
 
+Window::~Window()
+{
+    glfwDestroyWindow(m_window);
+
+    glfwTerminate();
+}
+
 void Window::run()
 {
     while(!glfwWindowShouldClose(m_window))
     {
         glfwPollEvents();
     }
-}
-
-void Window::destroy()
-{
-    glfwDestroyWindow(m_window);
-
-    glfwTerminate();
 }
 
 std::vector<const char*> Window::getRequiredInstanceExtensions() const
