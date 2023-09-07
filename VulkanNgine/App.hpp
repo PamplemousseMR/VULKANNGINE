@@ -37,7 +37,9 @@ class App
 
     bool checkValidationLayerSupport(const std::vector<const char*>& _validationLayers) const;
 
-    void createPhysicalDevice();
+    void selectPhysicalDevice();
+
+    void createLogicalDevice();
 
     void mainLoop();
 
@@ -50,4 +52,8 @@ class App
     VkDebugUtilsMessengerEXT m_debugutilMessenger{VK_NULL_HANDLE};
 
     VkPhysicalDevice m_physicalDevice{VK_NULL_HANDLE};
+
+    uint32_t m_graphicsFamilyIndex;
+
+    VkDevice m_logicalDevice{VK_NULL_HANDLE};
 };
