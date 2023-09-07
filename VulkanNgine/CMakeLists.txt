@@ -6,14 +6,21 @@ set(VKNGINE_APP_NAME VKViewer)
 
 set(VKNGINE_SRC
         App.cpp
-        main.cpp)
+        Instance.cpp
+        main.cpp
+        PhysicalDevice.cpp
+        Window.cpp)
 
 set(VKNGINE_HEADER
-        App.hpp)
+        App.hpp
+        Instance.hpp
+        logger.hpp
+        PhysicalDevice.hpp
+        Window.hpp)
 
 add_executable(${VKNGINE_APP_NAME} ${VKNGINE_SRC} ${VKNGINE_HEADER})
 
-target_link_libraries(${VKNGINE_APP_NAME} PRIVATE glfw glm::glm Vulkan::Vulkan)
+target_link_libraries(${VKNGINE_APP_NAME} PRIVATE glfw glm::glm Vulkan::Vulkan stdc++fs)
 
 target_compile_options(${VKNGINE_APP_NAME} PRIVATE $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:
     -Wall

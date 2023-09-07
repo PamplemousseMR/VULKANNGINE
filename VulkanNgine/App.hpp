@@ -56,4 +56,6 @@ class App
     uint32_t m_graphicsFamilyIndex;
 
     VkDevice m_logicalDevice{VK_NULL_HANDLE};
+
+    VkQueue m_graphicsQueue{VK_NULL_HANDLE};
 };

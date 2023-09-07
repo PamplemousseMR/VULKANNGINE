@@ -331,6 +331,8 @@ void App::createLogicalDevice()
     {
         throw std::runtime_error("Error while creating the logical device");
     }
+
+    vkGetDeviceQueue(m_logicalDevice, m_graphicsFamilyIndex, 0, &m_graphicsQueue);
 }
 
 void App::mainLoop()
