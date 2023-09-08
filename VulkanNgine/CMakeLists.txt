@@ -5,19 +5,19 @@
 set(VKNGINE_APP_NAME VKViewer)
 
 set(VKNGINE_SRC
-        App.cpp
         Instance.cpp
         LogicalDevice.cpp
         main.cpp
         PhysicalDevice.cpp
+        Surface.cpp
         Window.cpp)
 
 set(VKNGINE_HEADER
-        App.hpp
         Instance.hpp
         logger.hpp
         LogicalDevice.hpp
         PhysicalDevice.hpp
+        Surface.hpp
         Window.hpp)
 
 add_executable(${VKNGINE_APP_NAME} ${VKNGINE_SRC} ${VKNGINE_HEADER})

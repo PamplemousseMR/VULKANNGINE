@@ -23,6 +23,8 @@ class Window
 
     const std::string& getName() const;
 
+    inline GLFWwindow* get() { return m_window; }
+
   private:
     const std::string m_name;
 

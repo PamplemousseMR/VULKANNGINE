@@ -1,6 +1,7 @@
 #include "Instance.hpp"
 #include "LogicalDevice.hpp"
 #include "PhysicalDevice.hpp"
+#include "Surface.hpp"
 #include "Window.hpp"
 #include "logger.hpp"
 
@@ -12,6 +13,8 @@ int main()
     Window window("VulkanNgine");
 
     Instance instance(window);
+
+    Surface surface(window, instance);
 
     PhysicalDevice physicalDevice = PhysicalDevice::getDevices(instance)[0];
     VKNGINE_LOG_VERBOSE("Selected physical device " << physicalDevice.getName());

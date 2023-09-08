@@ -13,4 +13,6 @@ class LogicalDevice
     static constexpr float s_QUEUE_PRIORITY{1.0f};
 
     VkDevice m_device{VK_NULL_HANDLE};
+
+    VkQueue m_queue{VK_NULL_HANDLE};
 };

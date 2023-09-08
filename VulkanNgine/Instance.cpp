@@ -86,7 +86,12 @@ Instance::Instance(const Window& _window)
     m_debugUtilSupported = checkExtensionSupport({VK_EXT_DEBUG_UTILS_EXTENSION_NAME});
     if(m_debugUtilSupported)
     {
+        VKNGINE_LOG_INFO("Optional extension " << VK_EXT_DEBUG_UTILS_EXTENSION_NAME << ": true");
         requiredExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    }
+    else
+    {
+        VKNGINE_LOG_INFO("Optional extension " << VK_EXT_DEBUG_UTILS_EXTENSION_NAME << ": false");
     }
 
     // Check layers
@@ -107,10 +112,10 @@ Instance::Instance(const Window& _window)
     VkApplicationInfo applicationInfo{};
     applicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     applicationInfo.pApplicationName = _window.getName().c_str();
-    applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    applicationInfo.pEngineName = "No Engine";
-    applicationInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    applicationInfo.apiVersion = VK_API_VERSION_1_0;
+    applicationInfo.applicationVersion = VK_MAKE_VERSION(1, 1, 0);
+    applicationInfo.pEngineName = "VkEngine";
+    applicationInfo.engineVersion = VK_MAKE_VERSION(1, 1, 0);
+    applicationInfo.apiVersion = VK_API_VERSION_1_1;
 
     // Instance information
     VkInstanceCreateInfo instanceCreateInfo{};

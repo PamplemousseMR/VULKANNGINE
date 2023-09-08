@@ -64,8 +64,10 @@ LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice, VkQueueFlags
 
     if(vkCreateDevice(_physicalDevice.get(), &deviceCreateInfo, nullptr, &m_device) != VK_SUCCESS)
     {
-        throw std::runtime_error("Échec de création du périphérique logique !");
+        throw std::runtime_error("Failed to create logical device");
     }
+
+    vkGetDeviceQueue(m_device, selectedQueueFamily->m_index, 0, &m_queue);
 }
 
 LogicalDevice::~LogicalDevice() { vkDestroyDevice(m_device, nullptr); }

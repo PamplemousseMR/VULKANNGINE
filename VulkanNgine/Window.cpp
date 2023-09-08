@@ -9,7 +9,7 @@ Window::Window(const std::string& _name)
 {
     if(glfwInit() != GLFW_TRUE)
     {
-        throw std::runtime_error("failed to initialize glfw");
+        throw std::runtime_error("Failed to initialize glfw");
     }
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -19,7 +19,7 @@ Window::Window(const std::string& _name)
 
     if(m_window == nullptr)
     {
-        throw std::runtime_error("failed to create window");
+        throw std::runtime_error("Failed to create window");
     }
 }
 
