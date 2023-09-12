@@ -10,6 +10,8 @@ class Surface
 
     ~Surface();
 
+    VkSurfaceKHR get() const { return m_surface; }
+
   private:
     const Instance& m_instance;
 

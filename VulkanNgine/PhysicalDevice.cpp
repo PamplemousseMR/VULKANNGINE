@@ -2,7 +2,7 @@
 
 #include "logger.hpp"
 
-std::vector<PhysicalDevice> PhysicalDevice::getDevices(const Instance& _instance)
+std::vector<PhysicalDevice> PhysicalDevice::getDevices(const Instance& _instance, const Surface& _surface)
 {
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(_instance.get(), &deviceCount, nullptr);
@@ -58,6 +58,14 @@ std::vector<PhysicalDevice> PhysicalDevice::getDevices(const Instance& _instance
             if(availableQueueFamilies[i].queueFlags & VK_QUEUE_PROTECTED_BIT)
             {
                 queueFamily.m_protected = true;
+            }
+
+            // Chcek surface support
+            VkBool32 presentSupport = false;
+            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, _surface.get(), &presentSupport);
+            if(presentSupport)
+            {
+                queueFamily.m_present = true;
             }
 
             queueFamilies.push_back(queueFamily);

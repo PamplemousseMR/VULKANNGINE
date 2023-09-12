@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Instance.hpp"
+#include "Surface.hpp"
 
 #include <vector>
 
 class PhysicalDevice
 {
   public:
-    static std::vector<PhysicalDevice> getDevices(const Instance& _instance);
+    static std::vector<PhysicalDevice> getDevices(const Instance& _instance, const Surface& _surface);
 
     struct QueueFamily
     {
@@ -18,6 +19,7 @@ class PhysicalDevice
         bool m_transfer{false};
         bool m_sparseBinding{false};
         bool m_protected{false};
+        bool m_present{false};
     };
 
     inline VkPhysicalDevice get() const { return m_physicalDevice; }

@@ -16,7 +16,7 @@ int main()
 
     Surface surface(window, instance);
 
-    PhysicalDevice physicalDevice = PhysicalDevice::getDevices(instance)[0];
+    PhysicalDevice physicalDevice = PhysicalDevice::getDevices(instance, surface)[0];
     VKNGINE_LOG_VERBOSE("Selected physical device " << physicalDevice.getName());
     for(PhysicalDevice::QueueFamily queueFamily : physicalDevice.getQueueFamilies())
     {
@@ -26,9 +26,10 @@ int main()
         VKNGINE_LOG_VERBOSE("       Transfer " << queueFamily.m_transfer);
         VKNGINE_LOG_VERBOSE("       Sparse " << queueFamily.m_sparseBinding);
         VKNGINE_LOG_VERBOSE("       Protected " << queueFamily.m_protected);
+        VKNGINE_LOG_VERBOSE("       Present " << queueFamily.m_present);
     }
 
-    LogicalDevice logicalDevice(physicalDevice, VK_QUEUE_GRAPHICS_BIT);
+    LogicalDevice logicalDevice(physicalDevice, VK_QUEUE_GRAPHICS_BIT, true);
 
     window.run();
 

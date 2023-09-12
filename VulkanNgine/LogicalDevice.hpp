@@ -5,7 +5,7 @@
 class LogicalDevice
 {
   public:
-    LogicalDevice(const PhysicalDevice& _physicalDevice, VkQueueFlags _queueFlags);
+    LogicalDevice(const PhysicalDevice& _physicalDevice, VkQueueFlags _queueFlags, bool _surfaceSupport);
 
     ~LogicalDevice();
 
@@ -14,5 +14,15 @@ class LogicalDevice
 
     VkDevice m_device{VK_NULL_HANDLE};
 
-    VkQueue m_queue{VK_NULL_HANDLE};
+    VkQueue m_graphicQueue{VK_NULL_HANDLE};
+
+    VkQueue m_computeQueue{VK_NULL_HANDLE};
+
+    VkQueue m_transferQueue{VK_NULL_HANDLE};
+
+    VkQueue m_sparseQueue{VK_NULL_HANDLE};
+
+    VkQueue m_protectQueue{VK_NULL_HANDLE};
+
+    VkQueue m_presentQueue{VK_NULL_HANDLE};
 };

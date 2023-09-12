@@ -2,54 +2,185 @@
 
 #include "logger.hpp"
 
-LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice, VkQueueFlags _queueFlags)
+#include <set>
+
+LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice, VkQueueFlags _queueFlags, bool _surfaceSupport)
 {
-    const auto selectedQueueFamily =
+    const std::vector<PhysicalDevice::QueueFamily>::const_iterator graphicQueueFamily =
       std::find_if(_physicalDevice.getQueueFamilies().begin(),
                    _physicalDevice.getQueueFamilies().end(),
                    [&](const PhysicalDevice::QueueFamily& queueFamily) {
-                       if(_queueFlags & VK_QUEUE_GRAPHICS_BIT && !queueFamily.m_graphics)
+                       if(queueFamily.m_graphics)
                        {
-                           return false;
+                           return true;
                        }
-                       if(_queueFlags & VK_QUEUE_COMPUTE_BIT && !queueFamily.m_compute)
-                       {
-                           return false;
-                       }
-                       if(_queueFlags & VK_QUEUE_TRANSFER_BIT && !queueFamily.m_transfer)
-                       {
-                           return false;
-                       }
-                       if(_queueFlags & VK_QUEUE_SPARSE_BINDING_BIT && !queueFamily.m_sparseBinding)
-                       {
-                           return false;
-                       }
-                       if(_queueFlags & VK_QUEUE_PROTECTED_BIT && !queueFamily.m_protected)
-                       {
-                           return false;
-                       }
-                       return true;
+                       return false;
                    });
 
-    if(selectedQueueFamily == _physicalDevice.getQueueFamilies().end())
+    if(_queueFlags & VK_QUEUE_GRAPHICS_BIT && graphicQueueFamily == _physicalDevice.getQueueFamilies().end())
     {
-        throw std::runtime_error("The device does not have required queue family");
+        throw std::runtime_error("The device does not have required graphic queue family");
     }
 
-    VKNGINE_LOG_VERBOSE("Selected queue family: " << selectedQueueFamily->m_index);
+    const std::vector<PhysicalDevice::QueueFamily>::const_iterator computeQueueFamily =
+      std::find_if(_physicalDevice.getQueueFamilies().begin(),
+                   _physicalDevice.getQueueFamilies().end(),
+                   [&](const PhysicalDevice::QueueFamily& queueFamily) {
+                       if(queueFamily.m_compute)
+                       {
+                           return true;
+                       }
+                       return false;
+                   });
 
-    VkDeviceQueueCreateInfo deviceQueueCreateInfo{};
-    deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    deviceQueueCreateInfo.queueFamilyIndex = selectedQueueFamily->m_index;
-    deviceQueueCreateInfo.queueCount = 1;
-    deviceQueueCreateInfo.pQueuePriorities = &s_QUEUE_PRIORITY;
+    if(_queueFlags & VK_QUEUE_COMPUTE_BIT && computeQueueFamily == _physicalDevice.getQueueFamilies().end())
+    {
+        throw std::runtime_error("The device does not have required compute queue family");
+    }
 
+    const std::vector<PhysicalDevice::QueueFamily>::const_iterator transferQueueFamily =
+      std::find_if(_physicalDevice.getQueueFamilies().begin(),
+                   _physicalDevice.getQueueFamilies().end(),
+                   [&](const PhysicalDevice::QueueFamily& queueFamily) {
+                       if(queueFamily.m_transfer)
+                       {
+                           return true;
+                       }
+                       return false;
+                   });
+
+    if(_queueFlags & VK_QUEUE_TRANSFER_BIT && transferQueueFamily == _physicalDevice.getQueueFamilies().end())
+    {
+        throw std::runtime_error("The device does not have required transfer queue family");
+    }
+
+    const std::vector<PhysicalDevice::QueueFamily>::const_iterator sparseQueueFamily =
+      std::find_if(_physicalDevice.getQueueFamilies().begin(),
+                   _physicalDevice.getQueueFamilies().end(),
+                   [&](const PhysicalDevice::QueueFamily& queueFamily) {
+                       if(queueFamily.m_sparseBinding)
+                       {
+                           return true;
+                       }
+                       return false;
+                   });
+
+    if(_queueFlags & VK_QUEUE_SPARSE_BINDING_BIT && sparseQueueFamily == _physicalDevice.getQueueFamilies().end())
+    {
+        throw std::runtime_error("The device does not have required sparse queue family");
+    }
+
+    const std::vector<PhysicalDevice::QueueFamily>::const_iterator protectQueueFamily =
+      std::find_if(_physicalDevice.getQueueFamilies().begin(),
+                   _physicalDevice.getQueueFamilies().end(),
+                   [&](const PhysicalDevice::QueueFamily& queueFamily) {
+                       if(queueFamily.m_protected)
+                       {
+                           return true;
+                       }
+                       return false;
+                   });
+
+    if(_queueFlags & VK_QUEUE_PROTECTED_BIT && protectQueueFamily == _physicalDevice.getQueueFamilies().end())
+    {
+        throw std::runtime_error("The device does not have required protected queue family");
+    }
+
+    const std::vector<PhysicalDevice::QueueFamily>::const_iterator presentQueueFamily =
+      std::find_if(_physicalDevice.getQueueFamilies().begin(),
+                   _physicalDevice.getQueueFamilies().end(),
+                   [&](const PhysicalDevice::QueueFamily& queueFamily) {
+                       if(queueFamily.m_present)
+                       {
+                           return true;
+                       }
+                       return false;
+                   });
+
+    if(m_presentQueue && presentQueueFamily == _physicalDevice.getQueueFamilies().end())
+    {
+        throw std::runtime_error("The device does not have required present queue family");
+    }
+
+    std::set<uint32_t> uniqueQueueFamilies{};
+
+    if(graphicQueueFamily != _physicalDevice.getQueueFamilies().end())
+    {
+        uniqueQueueFamilies.insert(graphicQueueFamily->m_index);
+        VKNGINE_LOG_VERBOSE("Graphic queue family available at " << graphicQueueFamily->m_index);
+    }
+    else
+    {
+        VKNGINE_LOG_VERBOSE("Graphic queue family not available");
+    }
+
+    if(computeQueueFamily != _physicalDevice.getQueueFamilies().end())
+    {
+        uniqueQueueFamilies.insert(computeQueueFamily->m_index);
+        VKNGINE_LOG_VERBOSE("Compute queue family available at " << computeQueueFamily->m_index);
+    }
+    else
+    {
+        VKNGINE_LOG_VERBOSE("Compute queue family not available");
+    }
+
+    if(transferQueueFamily != _physicalDevice.getQueueFamilies().end())
+    {
+        uniqueQueueFamilies.insert(transferQueueFamily->m_index);
+        VKNGINE_LOG_VERBOSE("Transfer queue family available at " << transferQueueFamily->m_index);
+    }
+    else
+    {
+        VKNGINE_LOG_VERBOSE("Transfer queue family not available");
+    }
+
+    if(sparseQueueFamily != _physicalDevice.getQueueFamilies().end())
+    {
+        uniqueQueueFamilies.insert(sparseQueueFamily->m_index);
+        VKNGINE_LOG_VERBOSE("Sparse queue family available at " << sparseQueueFamily->m_index);
+    }
+    else
+    {
+        VKNGINE_LOG_VERBOSE("Sparse queue family not available");
+    }
+
+    if(protectQueueFamily != _physicalDevice.getQueueFamilies().end())
+    {
+        uniqueQueueFamilies.insert(protectQueueFamily->m_index);
+        VKNGINE_LOG_VERBOSE("Protect queue family available at " << protectQueueFamily->m_index);
+    }
+    else
+    {
+        VKNGINE_LOG_VERBOSE("Protect queue family not available");
+    }
+
+    if(presentQueueFamily != _physicalDevice.getQueueFamilies().end())
+    {
+        uniqueQueueFamilies.insert(presentQueueFamily->m_index);
+        VKNGINE_LOG_VERBOSE("Present queue family available at " << presentQueueFamily->m_index);
+    }
+    else
+    {
+        VKNGINE_LOG_VERBOSE("Present queue family not available");
+    }
+
+    std::vector<VkDeviceQueueCreateInfo> deviceQueueCreateInfos;
+    for(uint32_t queueFamily : uniqueQueueFamilies)
+    {
+        VKNGINE_LOG_INFO("Use queue family " << queueFamily);
+        VkDeviceQueueCreateInfo deviceQueueCreateInfo{};
+        deviceQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        deviceQueueCreateInfo.queueFamilyIndex = queueFamily;
+        deviceQueueCreateInfo.queueCount = 1;
+        deviceQueueCreateInfo.pQueuePriorities = &s_QUEUE_PRIORITY;
+        deviceQueueCreateInfos.push_back(deviceQueueCreateInfo);
+    }
     VkPhysicalDeviceFeatures physicalDeviceFeatures{};
 
     VkDeviceCreateInfo deviceCreateInfo{};
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
-    deviceCreateInfo.queueCreateInfoCount = 1;
+    deviceCreateInfo.pQueueCreateInfos = deviceQueueCreateInfos.data();
+    deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(deviceQueueCreateInfos.size());
     deviceCreateInfo.pEnabledFeatures = &physicalDeviceFeatures;
     deviceCreateInfo.enabledExtensionCount = 0;
     if(Instance::s_ENABLE_VALIDATION_LAYERS)
@@ -67,7 +198,7 @@ LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice, VkQueueFlags
         throw std::runtime_error("Failed to create logical device");
     }
 
-    vkGetDeviceQueue(m_device, selectedQueueFamily->m_index, 0, &m_queue);
+    vkGetDeviceQueue(m_graphicQueuedevice, selectedQueueFamily->m_index, 0, &m_queue);
 }
 
 LogicalDevice::~LogicalDevice() { vkDestroyDevice(m_device, nullptr); }
