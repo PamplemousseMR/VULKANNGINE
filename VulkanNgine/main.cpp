@@ -16,9 +16,41 @@ int main()
 
     Surface surface(window, instance);
 
-    PhysicalDevice physicalDevice = PhysicalDevice::getDevices(instance, surface)[0];
-    VKNGINE_LOG_VERBOSE("Selected physical device " << physicalDevice.getName());
-    for(PhysicalDevice::QueueFamily queueFamily : physicalDevice.getQueueFamilies())
+    std::vector<PhysicalDevice> physicalDevices = PhysicalDevice::getDevices(instance, surface);
+
+    std::vector<PhysicalDevice>::const_iterator selectedDevice =
+      std::find_if(physicalDevices.begin(), physicalDevices.end(), [&](const PhysicalDevice& _device) {
+          // Check the  graphic queue
+          const std::vector<PhysicalDevice::QueueFamily>::const_iterator graphicQueueFamily =
+            std::find_if(_device.getQueueFamilies().begin(),
+                         _device.getQueueFamilies().end(),
+                         [&](const PhysicalDevice::QueueFamily& queueFamily) {
+                             if(queueFamily.m_graphics)
+                             {
+                                 return true;
+                             }
+                             return false;
+                         });
+
+          // Check the swap chain
+          bool swapChainAdequate = false;
+          if(_device.hasSwapChainSupport())
+          {
+              PhysicalDevice::SwapChainSupportDetails details = _device.getSwapChainSupportDetails();
+              swapChainAdequate = !details.m_formats.empty() && !details.m_presentModes.empty();
+          }
+
+          return graphicQueueFamily != _device.getQueueFamilies().end() && swapChainAdequate;
+      });
+
+    if(selectedDevice == physicalDevices.end())
+    {
+        VKNGINE_LOG_ERROR("No physical device found");
+        return -1;
+    }
+
+    VKNGINE_LOG_VERBOSE("Selected physical device " << selectedDevice->getName());
+    for(PhysicalDevice::QueueFamily queueFamily : selectedDevice->getQueueFamilies())
     {
         VKNGINE_LOG_VERBOSE("   Queue family " << queueFamily.m_index);
         VKNGINE_LOG_VERBOSE("       Graphics " << queueFamily.m_graphics);
@@ -29,7 +61,7 @@ int main()
         VKNGINE_LOG_VERBOSE("       Present " << queueFamily.m_present);
     }
 
-    LogicalDevice logicalDevice(physicalDevice, VK_QUEUE_GRAPHICS_BIT, true, true);
+    LogicalDevice logicalDevice(*selectedDevice);
 
     window.run();
 

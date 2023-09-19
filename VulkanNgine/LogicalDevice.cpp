@@ -4,10 +4,7 @@
 
 #include <set>
 
-LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice,
-                             VkQueueFlags _queueFlags,
-                             bool _surfaceSupport,
-                             bool _swapChainSupport)
+LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice)
 {
     const std::vector<PhysicalDevice::QueueFamily>::const_iterator graphicQueueFamily =
       std::find_if(_physicalDevice.getQueueFamilies().begin(),
@@ -20,11 +17,6 @@ LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice,
                        return false;
                    });
 
-    if(_queueFlags & VK_QUEUE_GRAPHICS_BIT && graphicQueueFamily == _physicalDevice.getQueueFamilies().end())
-    {
-        throw std::runtime_error("The device does not have required graphic queue family");
-    }
-
     const std::vector<PhysicalDevice::QueueFamily>::const_iterator computeQueueFamily =
       std::find_if(_physicalDevice.getQueueFamilies().begin(),
                    _physicalDevice.getQueueFamilies().end(),
@@ -35,11 +27,6 @@ LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice,
                        }
                        return false;
                    });
-
-    if(_queueFlags & VK_QUEUE_COMPUTE_BIT && computeQueueFamily == _physicalDevice.getQueueFamilies().end())
-    {
-        throw std::runtime_error("The device does not have required compute queue family");
-    }
 
     const std::vector<PhysicalDevice::QueueFamily>::const_iterator transferQueueFamily =
       std::find_if(_physicalDevice.getQueueFamilies().begin(),
@@ -52,11 +39,6 @@ LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice,
                        return false;
                    });
 
-    if(_queueFlags & VK_QUEUE_TRANSFER_BIT && transferQueueFamily == _physicalDevice.getQueueFamilies().end())
-    {
-        throw std::runtime_error("The device does not have required transfer queue family");
-    }
-
     const std::vector<PhysicalDevice::QueueFamily>::const_iterator sparseQueueFamily =
       std::find_if(_physicalDevice.getQueueFamilies().begin(),
                    _physicalDevice.getQueueFamilies().end(),
@@ -67,11 +49,6 @@ LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice,
                        }
                        return false;
                    });
-
-    if(_queueFlags & VK_QUEUE_SPARSE_BINDING_BIT && sparseQueueFamily == _physicalDevice.getQueueFamilies().end())
-    {
-        throw std::runtime_error("The device does not have required sparse queue family");
-    }
 
     const std::vector<PhysicalDevice::QueueFamily>::const_iterator protectQueueFamily =
       std::find_if(_physicalDevice.getQueueFamilies().begin(),
@@ -84,11 +61,6 @@ LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice,
                        return false;
                    });
 
-    if(_queueFlags & VK_QUEUE_PROTECTED_BIT && protectQueueFamily == _physicalDevice.getQueueFamilies().end())
-    {
-        throw std::runtime_error("The device does not have required protected queue family");
-    }
-
     const std::vector<PhysicalDevice::QueueFamily>::const_iterator presentQueueFamily =
       std::find_if(_physicalDevice.getQueueFamilies().begin(),
                    _physicalDevice.getQueueFamilies().end(),
@@ -99,16 +71,6 @@ LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice,
                        }
                        return false;
                    });
-
-    if(_surfaceSupport && presentQueueFamily == _physicalDevice.getQueueFamilies().end())
-    {
-        throw std::runtime_error("The device does not have required present queue family");
-    }
-
-    if(_swapChainSupport && !_physicalDevice.hasSwapChainSupport())
-    {
-        throw std::runtime_error("The device does not have swap chain extension");
-    }
 
     std::set<uint32_t> uniqueQueueFamilies{};
 
@@ -195,11 +157,13 @@ LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice,
 
     if(_physicalDevice.hasSwapChainSupport())
     {
+        VKNGINE_LOG_VERBOSE("Swap chain extension available");
         deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(requiredExtension.size());
         deviceCreateInfo.ppEnabledExtensionNames = requiredExtension.data();
     }
     else
     {
+        VKNGINE_LOG_VERBOSE("Swap chain extension not available");
         deviceCreateInfo.enabledExtensionCount = 0;
     }
 

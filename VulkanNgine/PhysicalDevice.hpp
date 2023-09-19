@@ -22,13 +22,22 @@ class PhysicalDevice
         bool m_present{false};
     };
 
+    struct SwapChainSupportDetails
+    {
+        VkSurfaceCapabilitiesKHR m_capabilities;
+        std::vector<VkSurfaceFormatKHR> m_formats;
+        std::vector<VkPresentModeKHR> m_presentModes;
+    };
+
     inline VkPhysicalDevice get() const { return m_physicalDevice; }
 
     inline const std::vector<QueueFamily>& getQueueFamilies() const { return m_queueFamilies; }
 
-    inline const std::string& getName() { return m_name; }
+    inline const std::string& getName() const { return m_name; }
 
-    inline bool hasSwapChainSupport() const { return m_swapChain; }
+    inline bool hasSwapChainSupport() const { return m_swapChainSupport; }
+
+    inline const SwapChainSupportDetails getSwapChainSupportDetails() const { return m_swapChainSupportDetails; }
 
   private:
     static bool checkExtensionSupport(VkPhysicalDevice _device, const std::vector<const char*>& _extensions);
@@ -36,13 +45,16 @@ class PhysicalDevice
     PhysicalDevice(VkPhysicalDevice _physicalDevice,
                    const std::string& _name,
                    const std::vector<QueueFamily>& _queueFamilies,
-                   bool _swapChain);
+                   bool _swapChainSupport,
+                   const SwapChainSupportDetails _swapChainSupportDetails);
 
     VkPhysicalDevice m_physicalDevice{VK_NULL_HANDLE};
 
     const std::string m_name;
 
-    std::vector<QueueFamily> m_queueFamilies{};
+    const std::vector<QueueFamily> m_queueFamilies;
 
-    const bool m_swapChain{false};
+    const bool m_swapChainSupport;
+
+    const SwapChainSupportDetails m_swapChainSupportDetails;
 };

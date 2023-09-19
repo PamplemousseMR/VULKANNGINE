@@ -71,8 +71,35 @@ std::vector<PhysicalDevice> PhysicalDevice::getDevices(const Instance& _instance
             queueFamilies.push_back(queueFamily);
         }
 
-        const bool swapChain = checkExtensionSupport(device, {VK_KHR_SWAPCHAIN_EXTENSION_NAME});
-        devices.push_back(PhysicalDevice(device, physicalDeviceProperties.deviceName, queueFamilies, swapChain));
+        const bool swapChainSupport = checkExtensionSupport(device, {VK_KHR_SWAPCHAIN_EXTENSION_NAME});
+
+        SwapChainSupportDetails details;
+
+        if(swapChainSupport)
+        {
+            vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, _surface.get(), &details.m_capabilities);
+
+            uint32_t formatCount;
+            vkGetPhysicalDeviceSurfaceFormatsKHR(device, _surface.get(), &formatCount, nullptr);
+            if(formatCount != 0)
+            {
+                details.m_formats.resize(formatCount);
+                vkGetPhysicalDeviceSurfaceFormatsKHR(device, _surface.get(), &formatCount, details.m_formats.data());
+            }
+
+            uint32_t presentModeCount;
+            vkGetPhysicalDeviceSurfacePresentModesKHR(device, _surface.get(), &presentModeCount, nullptr);
+
+            if(presentModeCount != 0)
+            {
+                details.m_presentModes.resize(presentModeCount);
+                vkGetPhysicalDeviceSurfacePresentModesKHR(
+                  device, _surface.get(), &presentModeCount, details.m_presentModes.data());
+            }
+        }
+
+        devices.push_back(
+          PhysicalDevice(device, physicalDeviceProperties.deviceName, queueFamilies, swapChainSupport, details));
     }
 
     return devices;
@@ -112,9 +139,11 @@ bool PhysicalDevice::checkExtensionSupport(VkPhysicalDevice _device, const std::
 PhysicalDevice::PhysicalDevice(VkPhysicalDevice _physicalDevice,
                                const std::string& _name,
                                const std::vector<QueueFamily>& _queueFamilies,
-                               bool _swapChain)
+                               bool _swapChainSupport,
+                               const SwapChainSupportDetails _swapChainSupportDetails)
   : m_physicalDevice(_physicalDevice)
   , m_name(_name)
   , m_queueFamilies(_queueFamilies)
-  , m_swapChain(_swapChain)
+  , m_swapChainSupport(_swapChainSupport)
+  , m_swapChainSupportDetails(_swapChainSupportDetails)
 {}
