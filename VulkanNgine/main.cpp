@@ -2,6 +2,7 @@
 #include "LogicalDevice.hpp"
 #include "PhysicalDevice.hpp"
 #include "Surface.hpp"
+#include "SwapChain.hpp"
 #include "Window.hpp"
 #include "logger.hpp"
 
@@ -63,7 +64,12 @@ int main()
 
     LogicalDevice logicalDevice(*selectedDevice);
 
+    SwapChain swapChain(*selectedDevice, surface, logicalDevice);
+
     window.run();
 
-    return EXIT_SUCCESS;
+    IV - B - 2 -
+      f
+
+      return EXIT_SUCCESS;
 }

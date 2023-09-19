@@ -10,6 +10,7 @@ set(VKNGINE_SRC
         main.cpp
         PhysicalDevice.cpp
         Surface.cpp
+        SwapChain.cpp
         Window.cpp)
 
 set(VKNGINE_HEADER
@@ -18,6 +19,7 @@ set(VKNGINE_HEADER
         LogicalDevice.hpp
         PhysicalDevice.hpp
         Surface.hpp
+        SwapChain.hpp
         Window.hpp)
 
 add_executable(${VKNGINE_APP_NAME} ${VKNGINE_SRC} ${VKNGINE_HEADER})

@@ -186,36 +186,42 @@ LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice)
     {
         VKNGINE_LOG_VERBOSE("Graphic queue family: " << graphicQueueFamily->m_index);
         vkGetDeviceQueue(m_device, graphicQueueFamily->m_index, 0, &m_graphicQueue);
+        m_graphicQueueIdx = graphicQueueFamily->m_index;
     }
 
     if(computeQueueFamily != _physicalDevice.getQueueFamilies().end())
     {
         VKNGINE_LOG_VERBOSE("Compute queue family: " << computeQueueFamily->m_index);
         vkGetDeviceQueue(m_device, computeQueueFamily->m_index, 0, &m_computeQueue);
+        m_computeQueueIdx = computeQueueFamily->m_index;
     }
 
     if(transferQueueFamily != _physicalDevice.getQueueFamilies().end())
     {
         VKNGINE_LOG_VERBOSE("Transfer queue family: " << transferQueueFamily->m_index);
         vkGetDeviceQueue(m_device, transferQueueFamily->m_index, 0, &m_transferQueue);
+        m_transferQueueIdx = transferQueueFamily->m_index;
     }
 
     if(sparseQueueFamily != _physicalDevice.getQueueFamilies().end())
     {
         VKNGINE_LOG_VERBOSE("Sparse queue family: " << sparseQueueFamily->m_index);
         vkGetDeviceQueue(m_device, sparseQueueFamily->m_index, 0, &m_sparseQueue);
+        m_sparseQueueIdx = sparseQueueFamily->m_index;
     }
 
     if(protectQueueFamily != _physicalDevice.getQueueFamilies().end())
     {
         VKNGINE_LOG_VERBOSE("Protected queue family: " << protectQueueFamily->m_index);
         vkGetDeviceQueue(m_device, protectQueueFamily->m_index, 0, &m_protectQueue);
+        m_protectQueueIdx = protectQueueFamily->m_index;
     }
 
     if(presentQueueFamily != _physicalDevice.getQueueFamilies().end())
     {
         VKNGINE_LOG_VERBOSE("Present queue family: " << presentQueueFamily->m_index);
         vkGetDeviceQueue(m_device, presentQueueFamily->m_index, 0, &m_presentQueue);
+        m_presentQueueIdx = presentQueueFamily->m_index;
     }
 }
 

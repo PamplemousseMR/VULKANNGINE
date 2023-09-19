@@ -4,6 +4,72 @@
 
 #include <iostream>
 
+namespace {
+
+bool checkExtensionSupport(const std::vector<const char*>& _extensions)
+{
+    uint32_t extensionCount = 0;
+    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+
+    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+
+    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, availableExtensions.data());
+    for(const char* extensionName : _extensions)
+    {
+        bool extensionFound = false;
+
+        for(const auto& ex : availableExtensions)
+        {
+            if(strcmp(extensionName, ex.extensionName) == 0)
+            {
+                extensionFound = true;
+                break;
+            }
+        }
+
+        if(!extensionFound)
+        {
+            VKNGINE_LOG_WARNING("Extension '" << extensionName << "' not available");
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool checkLayerSupport(const std::vector<const char*>& _layers)
+{
+    uint32_t layerCount = 0;
+    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+    std::vector<VkLayerProperties> availableLayers(layerCount);
+
+    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+    for(const char* layerName : _layers)
+    {
+        bool layerFound = false;
+
+        for(const auto& la : availableLayers)
+        {
+            if(strcmp(layerName, la.layerName) == 0)
+            {
+                layerFound = true;
+                break;
+            }
+        }
+
+        if(!layerFound)
+        {
+            VKNGINE_LOG_WARNING("Layer '" << layerName << "' not available");
+            return false;
+        }
+    }
+
+    return true;
+}
+
+}
+
 const std::vector<const char*> Instance::s_VALIDATION_LAYERS = {"VK_LAYER_LUNARG_standard_validation"};
 
 std::string typeToString(VkDebugUtilsMessageTypeFlagsEXT _type)
@@ -178,66 +244,4 @@ Instance::~Instance()
     }
 
     vkDestroyInstance(m_instance, nullptr);
-}
-
-bool Instance::checkExtensionSupport(const std::vector<const char*>& _extensions) const
-{
-    uint32_t extensionCount = 0;
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-
-    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-
-    vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, availableExtensions.data());
-    for(const char* extensionName : _extensions)
-    {
-        bool extensionFound = false;
-
-        for(const auto& ex : availableExtensions)
-        {
-            if(strcmp(extensionName, ex.extensionName) == 0)
-            {
-                extensionFound = true;
-                break;
-            }
-        }
-
-        if(!extensionFound)
-        {
-            VKNGINE_LOG_WARNING("Extension '" << extensionName << "' not available");
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool Instance::checkLayerSupport(const std::vector<const char*>& _layers) const
-{
-    uint32_t layerCount = 0;
-    vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-
-    std::vector<VkLayerProperties> availableLayers(layerCount);
-
-    vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
-    for(const char* layerName : _layers)
-    {
-        bool layerFound = false;
-
-        for(const auto& la : availableLayers)
-        {
-            if(strcmp(layerName, la.layerName) == 0)
-            {
-                layerFound = true;
-                break;
-            }
-        }
-
-        if(!layerFound)
-        {
-            VKNGINE_LOG_WARNING("Layer '" << layerName << "' not available");
-            return false;
-        }
-    }
-
-    return true;
 }

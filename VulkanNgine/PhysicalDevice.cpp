@@ -2,6 +2,40 @@
 
 #include "logger.hpp"
 
+namespace {
+
+bool checkExtensionSupport(VkPhysicalDevice _device, const std::vector<const char*>& _extensions)
+{
+    uint32_t extensionCount = 0;
+    vkEnumerateDeviceExtensionProperties(_device, nullptr, &extensionCount, nullptr);
+
+    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+    vkEnumerateDeviceExtensionProperties(_device, nullptr, &extensionCount, availableExtensions.data());
+
+    for(const char* extensionName : _extensions)
+    {
+        bool extensionFound = false;
+
+        for(const auto& ex : availableExtensions)
+        {
+            if(strcmp(extensionName, ex.extensionName) == 0)
+            {
+                extensionFound = true;
+                break;
+            }
+        }
+
+        if(!extensionFound)
+        {
+            VKNGINE_LOG_WARNING("Extension '" << extensionName << "' not available");
+            return false;
+        }
+    }
+
+    return true;
+}
+
+}
 std::vector<PhysicalDevice> PhysicalDevice::getDevices(const Instance& _instance, const Surface& _surface)
 {
     uint32_t deviceCount = 0;
@@ -103,37 +137,6 @@ std::vector<PhysicalDevice> PhysicalDevice::getDevices(const Instance& _instance
     }
 
     return devices;
-}
-
-bool PhysicalDevice::checkExtensionSupport(VkPhysicalDevice _device, const std::vector<const char*>& _extensions)
-{
-    uint32_t extensionCount = 0;
-    vkEnumerateDeviceExtensionProperties(_device, nullptr, &extensionCount, nullptr);
-
-    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-    vkEnumerateDeviceExtensionProperties(_device, nullptr, &extensionCount, availableExtensions.data());
-
-    for(const char* extensionName : _extensions)
-    {
-        bool extensionFound = false;
-
-        for(const auto& ex : availableExtensions)
-        {
-            if(strcmp(extensionName, ex.extensionName) == 0)
-            {
-                extensionFound = true;
-                break;
-            }
-        }
-
-        if(!extensionFound)
-        {
-            VKNGINE_LOG_WARNING("Extension '" << extensionName << "' not available");
-            return false;
-        }
-    }
-
-    return true;
 }
 
 PhysicalDevice::PhysicalDevice(VkPhysicalDevice _physicalDevice,

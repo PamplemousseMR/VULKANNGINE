@@ -24,10 +24,6 @@ class Instance
     inline VkInstance get() const { return m_instance; }
 
   private:
-    bool checkExtensionSupport(const std::vector<const char*>& _extensions) const;
-
-    bool checkLayerSupport(const std::vector<const char*>& _layers) const;
-
     bool m_debugUtilSupported{false};
 
     VkInstance m_instance{VK_NULL_HANDLE};

@@ -40,8 +40,6 @@ class PhysicalDevice
     inline const SwapChainSupportDetails getSwapChainSupportDetails() const { return m_swapChainSupportDetails; }
 
   private:
-    static bool checkExtensionSupport(VkPhysicalDevice _device, const std::vector<const char*>& _extensions);
-
     PhysicalDevice(VkPhysicalDevice _physicalDevice,
                    const std::string& _name,
                    const std::vector<QueueFamily>& _queueFamilies,
