@@ -29,7 +29,7 @@ int main()
         VKNGINE_LOG_VERBOSE("       Present " << queueFamily.m_present);
     }
 
-    LogicalDevice logicalDevice(physicalDevice, VK_QUEUE_GRAPHICS_BIT, true);
+    LogicalDevice logicalDevice(physicalDevice, VK_QUEUE_GRAPHICS_BIT, true, true);
 
     window.run();
 

@@ -4,7 +4,10 @@
 
 #include <set>
 
-LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice, VkQueueFlags _queueFlags, bool _surfaceSupport)
+LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice,
+                             VkQueueFlags _queueFlags,
+                             bool _surfaceSupport,
+                             bool _swapChainSupport)
 {
     const std::vector<PhysicalDevice::QueueFamily>::const_iterator graphicQueueFamily =
       std::find_if(_physicalDevice.getQueueFamilies().begin(),
@@ -97,9 +100,14 @@ LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice, VkQueueFlags
                        return false;
                    });
 
-    if(m_presentQueue && presentQueueFamily == _physicalDevice.getQueueFamilies().end())
+    if(_surfaceSupport && presentQueueFamily == _physicalDevice.getQueueFamilies().end())
     {
         throw std::runtime_error("The device does not have required present queue family");
+    }
+
+    if(_swapChainSupport && !_physicalDevice.hasSwapChainSupport())
+    {
+        throw std::runtime_error("The device does not have swap chain extension");
     }
 
     std::set<uint32_t> uniqueQueueFamilies{};
@@ -177,12 +185,24 @@ LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice, VkQueueFlags
     }
     VkPhysicalDeviceFeatures physicalDeviceFeatures{};
 
+    std::vector<const char*> requiredExtension{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
     VkDeviceCreateInfo deviceCreateInfo{};
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     deviceCreateInfo.pQueueCreateInfos = deviceQueueCreateInfos.data();
     deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(deviceQueueCreateInfos.size());
     deviceCreateInfo.pEnabledFeatures = &physicalDeviceFeatures;
-    deviceCreateInfo.enabledExtensionCount = 0;
+
+    if(_physicalDevice.hasSwapChainSupport())
+    {
+        deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(requiredExtension.size());
+        deviceCreateInfo.ppEnabledExtensionNames = requiredExtension.data();
+    }
+    else
+    {
+        deviceCreateInfo.enabledExtensionCount = 0;
+    }
+
     if(Instance::s_ENABLE_VALIDATION_LAYERS)
     {
         deviceCreateInfo.ppEnabledLayerNames = Instance::s_VALIDATION_LAYERS.data();

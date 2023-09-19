@@ -60,7 +60,7 @@ std::vector<PhysicalDevice> PhysicalDevice::getDevices(const Instance& _instance
                 queueFamily.m_protected = true;
             }
 
-            // Chcek surface support
+            // Check surface support
             VkBool32 presentSupport = false;
             vkGetPhysicalDeviceSurfaceSupportKHR(device, i, _surface.get(), &presentSupport);
             if(presentSupport)
@@ -71,16 +71,50 @@ std::vector<PhysicalDevice> PhysicalDevice::getDevices(const Instance& _instance
             queueFamilies.push_back(queueFamily);
         }
 
-        devices.push_back(PhysicalDevice(device, physicalDeviceProperties.deviceName, queueFamilies));
+        const bool swapChain = checkExtensionSupport(device, {VK_KHR_SWAPCHAIN_EXTENSION_NAME});
+        devices.push_back(PhysicalDevice(device, physicalDeviceProperties.deviceName, queueFamilies, swapChain));
     }
 
     return devices;
 }
 
+bool PhysicalDevice::checkExtensionSupport(VkPhysicalDevice _device, const std::vector<const char*>& _extensions)
+{
+    uint32_t extensionCount = 0;
+    vkEnumerateDeviceExtensionProperties(_device, nullptr, &extensionCount, nullptr);
+
+    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+    vkEnumerateDeviceExtensionProperties(_device, nullptr, &extensionCount, availableExtensions.data());
+
+    for(const char* extensionName : _extensions)
+    {
+        bool extensionFound = false;
+
+        for(const auto& ex : availableExtensions)
+        {
+            if(strcmp(extensionName, ex.extensionName) == 0)
+            {
+                extensionFound = true;
+                break;
+            }
+        }
+
+        if(!extensionFound)
+        {
+            VKNGINE_LOG_WARNING("Extension '" << extensionName << "' not available");
+            return false;
+        }
+    }
+
+    return true;
+}
+
 PhysicalDevice::PhysicalDevice(VkPhysicalDevice _physicalDevice,
                                const std::string& _name,
-                               const std::vector<QueueFamily>& _queueFamilies)
+                               const std::vector<QueueFamily>& _queueFamilies,
+                               bool _swapChain)
   : m_physicalDevice(_physicalDevice)
   , m_name(_name)
   , m_queueFamilies(_queueFamilies)
+  , m_swapChain(_swapChain)
 {}

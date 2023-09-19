@@ -5,7 +5,10 @@
 class LogicalDevice
 {
   public:
-    LogicalDevice(const PhysicalDevice& _physicalDevice, VkQueueFlags _queueFlags, bool _surfaceSupport);
+    LogicalDevice(const PhysicalDevice& _physicalDevice,
+                  VkQueueFlags _queueFlags,
+                  bool _surfaceSupport,
+                  bool _swapChainSupport);
 
     ~LogicalDevice();
 

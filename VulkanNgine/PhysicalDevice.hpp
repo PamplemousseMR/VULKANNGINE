@@ -28,14 +28,21 @@ class PhysicalDevice
 
     inline const std::string& getName() { return m_name; }
 
+    inline bool hasSwapChainSupport() const { return m_swapChain; }
+
   private:
+    static bool checkExtensionSupport(VkPhysicalDevice _device, const std::vector<const char*>& _extensions);
+
     PhysicalDevice(VkPhysicalDevice _physicalDevice,
                    const std::string& _name,
-                   const std::vector<QueueFamily>& _queueFamilies);
+                   const std::vector<QueueFamily>& _queueFamilies,
+                   bool _swapChain);
 
     VkPhysicalDevice m_physicalDevice{VK_NULL_HANDLE};
 
     const std::string m_name;
 
     std::vector<QueueFamily> m_queueFamilies{};
+
+    const bool m_swapChain{false};
 };
