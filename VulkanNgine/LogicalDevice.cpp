@@ -198,7 +198,41 @@ LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice, VkQueueFlags
         throw std::runtime_error("Failed to create logical device");
     }
 
-    vkGetDeviceQueue(m_graphicQueuedevice, selectedQueueFamily->m_index, 0, &m_queue);
+    if(graphicQueueFamily != _physicalDevice.getQueueFamilies().end())
+    {
+        VKNGINE_LOG_VERBOSE("Graphic queue family: " << graphicQueueFamily->m_index);
+        vkGetDeviceQueue(m_device, graphicQueueFamily->m_index, 0, &m_graphicQueue);
+    }
+
+    if(computeQueueFamily != _physicalDevice.getQueueFamilies().end())
+    {
+        VKNGINE_LOG_VERBOSE("Compute queue family: " << computeQueueFamily->m_index);
+        vkGetDeviceQueue(m_device, computeQueueFamily->m_index, 0, &m_computeQueue);
+    }
+
+    if(transferQueueFamily != _physicalDevice.getQueueFamilies().end())
+    {
+        VKNGINE_LOG_VERBOSE("Transfer queue family: " << transferQueueFamily->m_index);
+        vkGetDeviceQueue(m_device, transferQueueFamily->m_index, 0, &m_transferQueue);
+    }
+
+    if(sparseQueueFamily != _physicalDevice.getQueueFamilies().end())
+    {
+        VKNGINE_LOG_VERBOSE("Sparse queue family: " << sparseQueueFamily->m_index);
+        vkGetDeviceQueue(m_device, sparseQueueFamily->m_index, 0, &m_sparseQueue);
+    }
+
+    if(protectQueueFamily != _physicalDevice.getQueueFamilies().end())
+    {
+        VKNGINE_LOG_VERBOSE("Protected queue family: " << protectQueueFamily->m_index);
+        vkGetDeviceQueue(m_device, protectQueueFamily->m_index, 0, &m_protectQueue);
+    }
+
+    if(presentQueueFamily != _physicalDevice.getQueueFamilies().end())
+    {
+        VKNGINE_LOG_VERBOSE("Present queue family: " << presentQueueFamily->m_index);
+        vkGetDeviceQueue(m_device, presentQueueFamily->m_index, 0, &m_presentQueue);
+    }
 }
 
 LogicalDevice::~LogicalDevice() { vkDestroyDevice(m_device, nullptr); }
