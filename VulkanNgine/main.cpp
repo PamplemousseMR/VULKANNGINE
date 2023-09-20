@@ -68,8 +68,5 @@ int main()
 
     window.run();
 
-    IV - B - 2 -
-      f
-
-      return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

@@ -56,12 +56,13 @@ SwapChain::SwapChain(const PhysicalDevice& _physicalDevice,
                      const Surface& _surface,
                      const LogicalDevice& _logicalDevice)
   : m_logicalDevice(_logicalDevice)
+  , m_surfaceFormat(chooseSwapSurfaceFormat(_physicalDevice.getSwapChainSupportDetails().m_formats))
+  , m_extent(chooseSwapExtent(_physicalDevice.getSwapChainSupportDetails().m_capabilities))
+
 {
     const PhysicalDevice::SwapChainSupportDetails details = _physicalDevice.getSwapChainSupportDetails();
 
-    const VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(details.m_formats);
     const VkPresentModeKHR presentMode = chooseSwapPresentMode(details.m_presentModes);
-    const VkExtent2D extent = chooseSwapExtent(details.m_capabilities);
 
     uint32_t imageCount = details.m_capabilities.minImageCount + 1;
     if(details.m_capabilities.maxImageCount > 0 && imageCount > details.m_capabilities.maxImageCount)
@@ -73,9 +74,9 @@ SwapChain::SwapChain(const PhysicalDevice& _physicalDevice,
     swapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     swapChainCreateInfo.surface = _surface.get();
     swapChainCreateInfo.minImageCount = imageCount;
-    swapChainCreateInfo.imageFormat = surfaceFormat.format;
-    swapChainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;
-    swapChainCreateInfo.imageExtent = extent;
+    swapChainCreateInfo.imageFormat = m_surfaceFormat.format;
+    swapChainCreateInfo.imageColorSpace = m_surfaceFormat.colorSpace;
+    swapChainCreateInfo.imageExtent = m_extent;
     swapChainCreateInfo.imageArrayLayers = 1;
     swapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
@@ -103,6 +104,10 @@ SwapChain::SwapChain(const PhysicalDevice& _physicalDevice,
     {
         throw std::runtime_error("Failed to create swap chain");
     }
+
+    vkGetSwapchainImagesKHR(_logicalDevice.get(), m_swapChain, &imageCount, nullptr);
+    m_swapChainImages.resize(imageCount);
+    vkGetSwapchainImagesKHR(_logicalDevice.get(), m_swapChain, &imageCount, m_swapChainImages.data());
 }
 
 SwapChain::~SwapChain() { vkDestroySwapchainKHR(m_logicalDevice.get(), m_swapChain, nullptr); }
