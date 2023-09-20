@@ -15,6 +15,8 @@ class SwapChain
 
     inline const VkSurfaceFormatKHR& getFormat() const { return m_surfaceFormat; }
 
+    inline const VkExtent2D getExtent() const { return m_extent; }
+
   private:
     const LogicalDevice& m_logicalDevice;
 

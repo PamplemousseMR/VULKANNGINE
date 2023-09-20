@@ -19,7 +19,7 @@ std::vector<char> readShaderBinaryFile(const std::string& filename)
     size_t fileSize = static_cast<size_t>(file.tellg());
     std::vector<char> buffer(fileSize);
     file.seekg(0);
-    file.read(buffer.data(), file.tellg());
+    file.read(buffer.data(), static_cast<std::streamsize>(fileSize));
     file.close();
 
     return buffer;

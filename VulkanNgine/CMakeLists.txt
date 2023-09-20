@@ -9,6 +9,8 @@ set(VKNGINE_SRC
         LogicalDevice.cpp
         main.cpp
         PhysicalDevice.cpp
+        Pipeline.cpp
+        RenderPass.cpp
         ShaderModule.cpp
         Surface.cpp
         SwapChain.cpp
@@ -19,6 +21,8 @@ set(VKNGINE_HEADER
         Instance.hpp
         logger.hpp
         LogicalDevice.hpp
+        Pipeline.hpp
+        RenderPass.hpp
         PhysicalDevice.hpp
         ShaderModule.hpp
         Surface.hpp

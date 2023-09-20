@@ -11,6 +11,8 @@ class ShaderModule
 
     ~ShaderModule();
 
+    inline VkShaderModule get() const { return m_shaderModule; }
+
   private:
     const LogicalDevice& m_logicalDevice;
 

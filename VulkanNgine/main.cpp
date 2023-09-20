@@ -1,6 +1,8 @@
 #include "Instance.hpp"
 #include "LogicalDevice.hpp"
 #include "PhysicalDevice.hpp"
+#include "Pipeline.hpp"
+#include "RenderPass.hpp"
 #include "ShaderModule.hpp"
 #include "Surface.hpp"
 #include "SwapChain.hpp"
@@ -70,8 +72,11 @@ int main()
 
     SwapChainImageViews swapChainimageViews(logicalDevice, swapChain);
 
-    ShaderModule defaultVert(logicalDevice, "Shaders/default.vert.bin");
-    ShaderModule defaultFrag(logicalDevice, "Shaders/default.frag.bin");
+    ShaderModule defaultVertShaderModule(logicalDevice, "Shaders/default.vert.bin");
+    ShaderModule defaultFragShaderModule(logicalDevice, "Shaders/default.frag.bin");
+
+    RenderPass renderPass(logicalDevice, swapChain);
+    Pipeline pipeline(logicalDevice, defaultVertShaderModule, defaultFragShaderModule, renderPass, swapChain);
 
     window.run();
 
