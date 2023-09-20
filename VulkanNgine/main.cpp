@@ -3,6 +3,7 @@
 #include "PhysicalDevice.hpp"
 #include "Surface.hpp"
 #include "SwapChain.hpp"
+#include "SwapChainImageViews.hpp"
 #include "Window.hpp"
 #include "logger.hpp"
 
@@ -65,6 +66,8 @@ int main()
     LogicalDevice logicalDevice(*selectedDevice);
 
     SwapChain swapChain(*selectedDevice, surface, logicalDevice);
+
+    SwapChainImageViews swapChainimageViews(swapChain, logicalDevice);
 
     window.run();
 

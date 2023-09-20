@@ -11,6 +11,7 @@ set(VKNGINE_SRC
         PhysicalDevice.cpp
         Surface.cpp
         SwapChain.cpp
+        SwapChainImageViews.cpp
         Window.cpp)
 
 set(VKNGINE_HEADER
@@ -20,6 +21,7 @@ set(VKNGINE_HEADER
         PhysicalDevice.hpp
         Surface.hpp
         SwapChain.hpp
+        SwapChainImageViews.hpp
         Window.hpp)
 
 add_executable(${VKNGINE_APP_NAME} ${VKNGINE_SRC} ${VKNGINE_HEADER})

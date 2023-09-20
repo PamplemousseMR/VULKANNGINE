@@ -11,6 +11,10 @@ class SwapChain
 
     ~SwapChain();
 
+    inline const std::vector<VkImage>& getImages() const { return m_swapChainImages; }
+
+    inline const VkSurfaceFormatKHR& getFormat() const { return m_surfaceFormat; }
+
   private:
     const LogicalDevice& m_logicalDevice;
 
