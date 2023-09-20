@@ -6,7 +6,7 @@
 class SwapChainImageViews
 {
   public:
-    SwapChainImageViews(const SwapChain& _swapChain, const LogicalDevice& _logicalDevice);
+    SwapChainImageViews(const LogicalDevice& _logicalDevice, const SwapChain& _swapChain);
 
     ~SwapChainImageViews();
 

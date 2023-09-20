@@ -70,7 +70,7 @@ bool checkLayerSupport(const std::vector<const char*>& _layers)
 
 }
 
-const std::vector<const char*> Instance::s_VALIDATION_LAYERS = {"VK_LAYER_LUNARG_standard_validation"};
+const std::vector<const char*> Instance::s_VALIDATION_LAYERS = {"VK_LAYER_KHRONOS_validation"};
 
 std::string typeToString(VkDebugUtilsMessageTypeFlagsEXT _type)
 {

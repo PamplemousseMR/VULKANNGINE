@@ -9,6 +9,7 @@ set(VKNGINE_SRC
         LogicalDevice.cpp
         main.cpp
         PhysicalDevice.cpp
+        ShaderModule.cpp
         Surface.cpp
         SwapChain.cpp
         SwapChainImageViews.cpp
@@ -19,12 +20,17 @@ set(VKNGINE_HEADER
         logger.hpp
         LogicalDevice.hpp
         PhysicalDevice.hpp
+        ShaderModule.hpp
         Surface.hpp
         SwapChain.hpp
         SwapChainImageViews.hpp
         Window.hpp)
 
-add_executable(${VKNGINE_APP_NAME} ${VKNGINE_SRC} ${VKNGINE_HEADER})
+set(VKNGINE_SHADER
+        Shaders/default.vert
+        Shaders/default.frag)
+
+add_executable(${VKNGINE_APP_NAME} ${VKNGINE_SRC} ${VKNGINE_HEADER} ${VKNGINE_SHADER})
 
 target_link_libraries(${VKNGINE_APP_NAME} PRIVATE glfw glm::glm Vulkan::Vulkan stdc++fs)
 
@@ -51,3 +57,5 @@ target_compile_options(${VKNGINE_APP_NAME} PRIVATE $<$<NOT:$<CXX_COMPILER_ID:MSV
     -Wduplicated-branches
     -Wuseless-cast
     -Wlogical-op>>)
+
+add_shader(${VKNGINE_APP_NAME} SOURCES ${VKNGINE_SHADER})

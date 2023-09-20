@@ -1,6 +1,6 @@
 #include "SwapChainImageViews.hpp"
 
-SwapChainImageViews::SwapChainImageViews(const SwapChain& _swapChain, const LogicalDevice& _logicalDevice)
+SwapChainImageViews::SwapChainImageViews(const LogicalDevice& _logicalDevice, const SwapChain& _swapChain)
   : m_logicalDevice(_logicalDevice)
 
 {
