@@ -1,4 +1,4 @@
-#include "FrameBuffers.hpp"
+#include "FrameBuffer.hpp"
 #include "Instance.hpp"
 #include "LogicalDevice.hpp"
 #include "PhysicalDevice.hpp"
@@ -71,16 +71,23 @@ int main()
 
     SwapChain swapChain(*selectedDevice, surface, logicalDevice);
 
-    SwapChainImageViews swapChainimageViews(logicalDevice, swapChain);
+    SwapChainImageViews swapChainImageViews(logicalDevice, swapChain);
 
     ShaderModule defaultVertShaderModule(logicalDevice, "Shaders/default.vert.bin");
     ShaderModule defaultFragShaderModule(logicalDevice, "Shaders/default.frag.bin");
 
-    RenderPass renderPass(logicalDevice, swapChain);
+    RenderPass renderPass(logicalDevice, swapChain.getFormat().format);
 
-    Pipeline pipeline(logicalDevice, defaultVertShaderModule, defaultFragShaderModule, renderPass, swapChain);
+    Pipeline pipeline(
+      logicalDevice, defaultVertShaderModule, defaultFragShaderModule, renderPass, swapChain.getExtent());
 
-    FrameBuffers framebuffers(logicalDevice, swapChain, swapChainimageViews, renderPass);
+    std::vector<FrameBuffer> framebuffers;
+    framebuffers.reserve(swapChainImageViews.get().size());
+
+    for(size_t i = 0; i < swapChainImageViews.get().size(); ++i)
+    {
+        framebuffers.emplace_back(logicalDevice, renderPass, swapChainImageViews.get()[i], swapChain.getExtent());
+    }
 
     window.run();
 

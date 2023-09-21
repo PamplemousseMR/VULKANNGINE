@@ -10,6 +10,14 @@ class Surface
 
     ~Surface();
 
+    Surface(const Surface&) = delete;
+
+    Surface(Surface&& _f) = delete;
+
+    Surface& operator=(const Surface&) = delete;
+
+    Surface& operator=(Surface&&) = delete;
+
     VkSurfaceKHR get() const { return m_surface; }
 
   private:

@@ -29,6 +29,14 @@ class PhysicalDevice
         std::vector<VkPresentModeKHR> m_presentModes;
     };
 
+    PhysicalDevice(const PhysicalDevice&) = delete;
+
+    PhysicalDevice(PhysicalDevice&& _d);
+
+    PhysicalDevice& operator=(const PhysicalDevice&) = delete;
+
+    PhysicalDevice& operator=(PhysicalDevice&&) = delete;
+
     inline VkPhysicalDevice get() const { return m_physicalDevice; }
 
     inline const std::vector<QueueFamily>& getQueueFamilies() const { return m_queueFamilies; }

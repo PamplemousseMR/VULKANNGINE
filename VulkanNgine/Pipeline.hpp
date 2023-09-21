@@ -12,9 +12,17 @@ class Pipeline
              const ShaderModule& _vertexShaderModule,
              const ShaderModule& _fragmentShaderModule,
              const RenderPass& _renderPass,
-             const SwapChain& _swapChain);
+             VkExtent2D _size);
 
     ~Pipeline();
+
+    Pipeline(const Pipeline&) = delete;
+
+    Pipeline(Pipeline&& _f) = delete;
+
+    Pipeline& operator=(const Pipeline&) = delete;
+
+    Pipeline& operator=(Pipeline&&) = delete;
 
   private:
     const LogicalDevice& m_logicalDevice;

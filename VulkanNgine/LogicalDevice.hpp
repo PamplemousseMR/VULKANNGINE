@@ -9,6 +9,14 @@ class LogicalDevice
 
     ~LogicalDevice();
 
+    LogicalDevice(const LogicalDevice&) = delete;
+
+    LogicalDevice(LogicalDevice&& _f) = delete;
+
+    LogicalDevice& operator=(const LogicalDevice&) = delete;
+
+    LogicalDevice& operator=(LogicalDevice&&) = delete;
+
     inline VkDevice get() const { return m_device; }
 
     inline uint32_t getgraphicQueueIdx() const { return m_graphicQueueIdx; }

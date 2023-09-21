@@ -6,9 +6,17 @@
 class RenderPass
 {
   public:
-    RenderPass(const LogicalDevice& _logicalDevice, const SwapChain& _swapChain);
+    RenderPass(const LogicalDevice& _logicalDevice, VkFormat _format);
 
     ~RenderPass();
+
+    RenderPass(const RenderPass&) = delete;
+
+    RenderPass(RenderPass&& _f) = delete;
+
+    RenderPass& operator=(const RenderPass&) = delete;
+
+    RenderPass& operator=(RenderPass&&) = delete;
 
     inline VkRenderPass get() const { return m_renderPass; }
 

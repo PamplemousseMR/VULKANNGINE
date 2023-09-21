@@ -4,7 +4,7 @@ Pipeline::Pipeline(const LogicalDevice& _logicalDevice,
                    const ShaderModule& _vertexShaderModule,
                    const ShaderModule& _fragmentShaderModule,
                    const RenderPass& _renderPass,
-                   const SwapChain& _swapChain)
+                   VkExtent2D _size)
   : m_logicalDevice(_logicalDevice)
 {
     // Programmable steps
@@ -55,14 +55,14 @@ Pipeline::Pipeline(const LogicalDevice& _logicalDevice,
     VkViewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
-    viewport.width = static_cast<float>(_swapChain.getExtent().width);
-    viewport.height = static_cast<float>(_swapChain.getExtent().height);
+    viewport.width = static_cast<float>(_size.width);
+    viewport.height = static_cast<float>(_size.height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
     VkRect2D scissor{};
     scissor.offset = {0, 0};
-    scissor.extent = _swapChain.getExtent();
+    scissor.extent = _size;
 
     VkPipelineViewportStateCreateInfo viewportStateCreateInfo{};
     viewportStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;

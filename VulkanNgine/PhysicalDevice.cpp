@@ -50,6 +50,7 @@ std::vector<PhysicalDevice> PhysicalDevice::getDevices(const Instance& _instance
     vkEnumeratePhysicalDevices(_instance.get(), &deviceCount, availableDevices.data());
 
     std::vector<PhysicalDevice> devices;
+    devices.reserve(deviceCount);
 
     for(const VkPhysicalDevice& device : availableDevices)
     {
@@ -132,12 +133,21 @@ std::vector<PhysicalDevice> PhysicalDevice::getDevices(const Instance& _instance
             }
         }
 
-        devices.push_back(
-          PhysicalDevice(device, physicalDeviceProperties.deviceName, queueFamilies, swapChainSupport, details));
+        PhysicalDevice physicalDevice(
+          device, physicalDeviceProperties.deviceName, queueFamilies, swapChainSupport, details);
+        devices.push_back(std::move(physicalDevice));
     }
 
     return devices;
 }
+
+PhysicalDevice::PhysicalDevice(PhysicalDevice&& _d)
+  : m_physicalDevice(std::move(_d.m_physicalDevice))
+  , m_name(std::move(_d.m_name))
+  , m_queueFamilies(std::move(_d.m_queueFamilies))
+  , m_swapChainSupport(std::move(_d.m_swapChainSupport))
+  , m_swapChainSupportDetails(std::move(_d.m_swapChainSupportDetails))
+{}
 
 PhysicalDevice::PhysicalDevice(VkPhysicalDevice _physicalDevice,
                                const std::string& _name,

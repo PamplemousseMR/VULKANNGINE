@@ -21,6 +21,14 @@ class Instance
 
     ~Instance();
 
+    Instance(const Instance&) = delete;
+
+    Instance(Instance&& _f) = delete;
+
+    Instance& operator=(const Instance&) = delete;
+
+    Instance& operator=(Instance&&) = delete;
+
     inline VkInstance get() const { return m_instance; }
 
   private:

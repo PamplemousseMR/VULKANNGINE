@@ -1,10 +1,10 @@
 #include "RenderPass.hpp"
 
-RenderPass::RenderPass(const LogicalDevice& _logicalDevice, const SwapChain& _swapChain)
+RenderPass::RenderPass(const LogicalDevice& _logicalDevice, VkFormat _format)
   : m_logicalDevice(_logicalDevice)
 {
     VkAttachmentDescription attachementDescription{};
-    attachementDescription.format = _swapChain.getFormat().format;
+    attachementDescription.format = _format;
     attachementDescription.samples = VK_SAMPLE_COUNT_1_BIT;
     attachementDescription.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     attachementDescription.storeOp = VK_ATTACHMENT_STORE_OP_STORE;

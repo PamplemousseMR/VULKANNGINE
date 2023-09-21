@@ -11,6 +11,14 @@ class ShaderModule
 
     ~ShaderModule();
 
+    ShaderModule(const ShaderModule&) = delete;
+
+    ShaderModule(ShaderModule&& _f) = delete;
+
+    ShaderModule& operator=(const ShaderModule&) = delete;
+
+    ShaderModule& operator=(ShaderModule&&) = delete;
+
     inline VkShaderModule get() const { return m_shaderModule; }
 
   private:

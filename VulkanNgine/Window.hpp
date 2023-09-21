@@ -17,6 +17,14 @@ class Window
 
     ~Window();
 
+    Window(const Window&) = delete;
+
+    Window(Window&& _f) = delete;
+
+    Window& operator=(const Window&) = delete;
+
+    Window& operator=(Window&&) = delete;
+
     void run();
 
     std::vector<const char*> getRequiredInstanceExtensions() const;

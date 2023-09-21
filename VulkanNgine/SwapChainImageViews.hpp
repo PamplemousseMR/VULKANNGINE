@@ -10,6 +10,14 @@ class SwapChainImageViews
 
     ~SwapChainImageViews();
 
+    SwapChainImageViews(const SwapChainImageViews&) = delete;
+
+    SwapChainImageViews(SwapChainImageViews&& _f) = delete;
+
+    SwapChainImageViews& operator=(const SwapChainImageViews&) = delete;
+
+    SwapChainImageViews& operator=(SwapChainImageViews&&) = delete;
+
     inline const std::vector<VkImageView>& get() const { return m_imageViews; }
 
   private:
