@@ -7,6 +7,8 @@ Pipeline::Pipeline(const LogicalDevice& _logicalDevice,
                    const SwapChain& _swapChain)
   : m_logicalDevice(_logicalDevice)
 {
+    // Programmable steps
+    // Shaders
     VkPipelineShaderStageCreateInfo vertPipelineShaderStageCreateInfo{};
     vertPipelineShaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     vertPipelineShaderStageCreateInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
@@ -22,6 +24,21 @@ Pipeline::Pipeline(const LogicalDevice& _logicalDevice,
     VkPipelineShaderStageCreateInfo shaderStageCreateInfo[] = {vertPipelineShaderStageCreateInfo,
                                                                fragPipelineShaderStageCreateInfo};
 
+    // Uniforms
+    VkPipelineLayoutCreateInfo layoutCreateInfo{};
+    layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    layoutCreateInfo.setLayoutCount = 0;
+    layoutCreateInfo.pSetLayouts = nullptr;
+    layoutCreateInfo.pushConstantRangeCount = 0;
+    layoutCreateInfo.pPushConstantRanges = nullptr;
+
+    if(vkCreatePipelineLayout(_logicalDevice.get(), &layoutCreateInfo, nullptr, &m_layout) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create the layout");
+    }
+
+    // Fixed steps
+    // Input assembler
     VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo{};
     vertexInputStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputStateCreateInfo.vertexBindingDescriptionCount = 0;
@@ -34,6 +51,7 @@ Pipeline::Pipeline(const LogicalDevice& _logicalDevice,
     inputAssemblyStateCreateInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     inputAssemblyStateCreateInfo.primitiveRestartEnable = VK_FALSE;
 
+    // Viewport
     VkViewport viewport{};
     viewport.x = 0.0f;
     viewport.y = 0.0f;
@@ -53,6 +71,7 @@ Pipeline::Pipeline(const LogicalDevice& _logicalDevice,
     viewportStateCreateInfo.scissorCount = 1;
     viewportStateCreateInfo.pScissors = &scissor;
 
+    // Rasterizer
     VkPipelineRasterizationStateCreateInfo rasterizationStateCreateInfo{};
     rasterizationStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     rasterizationStateCreateInfo.depthClampEnable = VK_FALSE;
@@ -66,6 +85,7 @@ Pipeline::Pipeline(const LogicalDevice& _logicalDevice,
     rasterizationStateCreateInfo.depthBiasClamp = 0.0f;
     rasterizationStateCreateInfo.depthBiasSlopeFactor = 0.0f;
 
+    // Multisampling
     VkPipelineMultisampleStateCreateInfo multisampleStateCreateInfo{};
     multisampleStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
     multisampleStateCreateInfo.sampleShadingEnable = VK_FALSE;
@@ -75,6 +95,7 @@ Pipeline::Pipeline(const LogicalDevice& _logicalDevice,
     multisampleStateCreateInfo.alphaToCoverageEnable = VK_FALSE;
     multisampleStateCreateInfo.alphaToOneEnable = VK_FALSE;
 
+    // Blending
     VkPipelineColorBlendAttachmentState colorBlendAttachmentState{};
     colorBlendAttachmentState.colorWriteMask =
       VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
@@ -97,25 +118,15 @@ Pipeline::Pipeline(const LogicalDevice& _logicalDevice,
     colorBlendStateCreateInfo.blendConstants[2] = 0.0f;
     colorBlendStateCreateInfo.blendConstants[3] = 0.0f;
 
-    VkDynamicState dynamicStates[] = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_LINE_WIDTH};
+    // Dynamic states
+    /*VkDynamicState dynamicStates[] = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_LINE_WIDTH};
 
     VkPipelineDynamicStateCreateInfo dynamicStateCreateInfo{};
     dynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
     dynamicStateCreateInfo.dynamicStateCount = 2;
-    dynamicStateCreateInfo.pDynamicStates = dynamicStates;
+    dynamicStateCreateInfo.pDynamicStates = dynamicStates;*/
 
-    VkPipelineLayoutCreateInfo layoutCreateInfo{};
-    layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    layoutCreateInfo.setLayoutCount = 0;
-    layoutCreateInfo.pSetLayouts = nullptr;
-    layoutCreateInfo.pushConstantRangeCount = 0;
-    layoutCreateInfo.pPushConstantRanges = nullptr;
-
-    if(vkCreatePipelineLayout(_logicalDevice.get(), &layoutCreateInfo, nullptr, &m_layout) != VK_SUCCESS)
-    {
-        throw std::runtime_error("Failed to create the layout");
-    }
-
+    // Pipeline
     VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
     graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 
@@ -129,7 +140,7 @@ Pipeline::Pipeline(const LogicalDevice& _logicalDevice,
     graphicsPipelineCreateInfo.pMultisampleState = &multisampleStateCreateInfo;
     graphicsPipelineCreateInfo.pDepthStencilState = nullptr;
     graphicsPipelineCreateInfo.pColorBlendState = &colorBlendStateCreateInfo;
-    graphicsPipelineCreateInfo.pDynamicState = &dynamicStateCreateInfo;
+    graphicsPipelineCreateInfo.pDynamicState = nullptr; //&dynamicStateCreateInfo;
 
     graphicsPipelineCreateInfo.layout = m_layout;
 
