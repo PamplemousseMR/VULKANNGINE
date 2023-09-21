@@ -1,3 +1,4 @@
+#include "CommandPool.hpp"
 #include "FrameBuffer.hpp"
 #include "Instance.hpp"
 #include "LogicalDevice.hpp"
@@ -88,6 +89,8 @@ int main()
     {
         framebuffers.emplace_back(logicalDevice, renderPass, swapChainImageViews.get()[i], swapChain.getExtent());
     }
+
+    CommandPool commandPool(logicalDevice, VK_QUEUE_GRAPHICS_BIT);
 
     window.run();
 

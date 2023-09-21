@@ -80,8 +80,8 @@ SwapChain::SwapChain(const PhysicalDevice& _physicalDevice,
     swapChainCreateInfo.imageArrayLayers = 1;
     swapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    uint32_t queueFamilyIndices[] = {_logicalDevice.getgraphicQueueIdx(), _logicalDevice.getpresentQueueIdx()};
-    if(_logicalDevice.getgraphicQueueIdx() != _logicalDevice.getpresentQueueIdx())
+    uint32_t queueFamilyIndices[] = {_logicalDevice.getGraphicQueueIdx(), _logicalDevice.getPresentQueueIdx()};
+    if(_logicalDevice.getGraphicQueueIdx() != _logicalDevice.getPresentQueueIdx())
     {
         swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
         swapChainCreateInfo.queueFamilyIndexCount = 2;

@@ -19,17 +19,17 @@ class LogicalDevice
 
     inline VkDevice get() const { return m_device; }
 
-    inline uint32_t getgraphicQueueIdx() const { return m_graphicQueueIdx; }
+    inline uint32_t getGraphicQueueIdx() const { return m_graphicQueueIdx; }
 
-    inline uint32_t getcomputeQueueIdx() const { return m_computeQueueIdx; }
+    inline uint32_t getComputeQueueIdx() const { return m_computeQueueIdx; }
 
-    inline uint32_t gettransferQueueIdx() const { return m_transferQueueIdx; }
+    inline uint32_t getTransferQueueIdx() const { return m_transferQueueIdx; }
 
-    inline uint32_t getsparseQueueIdx() const { return m_sparseQueueIdx; }
+    inline uint32_t getSparseQueueIdx() const { return m_sparseQueueIdx; }
 
-    inline uint32_t getprotectQueueIdx() const { return m_protectQueueIdx; }
+    inline uint32_t getProtectQueueIdx() const { return m_protectQueueIdx; }
 
-    inline uint32_t getpresentQueueIdx() const { return m_presentQueueIdx; }
+    inline uint32_t getPresentQueueIdx() const { return m_presentQueueIdx; }
 
   private:
     static constexpr float s_QUEUE_PRIORITY{1.0f};
