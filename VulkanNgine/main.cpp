@@ -1,3 +1,4 @@
+#include "FrameBuffers.hpp"
 #include "Instance.hpp"
 #include "LogicalDevice.hpp"
 #include "PhysicalDevice.hpp"
@@ -76,7 +77,10 @@ int main()
     ShaderModule defaultFragShaderModule(logicalDevice, "Shaders/default.frag.bin");
 
     RenderPass renderPass(logicalDevice, swapChain);
+
     Pipeline pipeline(logicalDevice, defaultVertShaderModule, defaultFragShaderModule, renderPass, swapChain);
+
+    FrameBuffers framebuffers(logicalDevice, swapChain, swapChainimageViews, renderPass);
 
     window.run();
 

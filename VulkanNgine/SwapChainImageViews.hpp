@@ -10,6 +10,8 @@ class SwapChainImageViews
 
     ~SwapChainImageViews();
 
+    inline const std::vector<VkImageView>& get() const { return m_imageViews; }
+
   private:
     const LogicalDevice& m_logicalDevice;
 
