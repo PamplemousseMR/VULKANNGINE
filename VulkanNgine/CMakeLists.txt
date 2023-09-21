@@ -14,6 +14,7 @@ set(VKNGINE_SRC
         PhysicalDevice.cpp
         Pipeline.cpp
         RenderPass.cpp
+        Semaphore.cpp
         ShaderModule.cpp
         Surface.cpp
         SwapChain.cpp
@@ -29,6 +30,7 @@ set(VKNGINE_HEADER
         LogicalDevice.hpp
         Pipeline.hpp
         RenderPass.hpp
+        Semaphore.hpp
         PhysicalDevice.hpp
         ShaderModule.hpp
         Surface.hpp

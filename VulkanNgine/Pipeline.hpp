@@ -24,6 +24,8 @@ class Pipeline
 
     Pipeline& operator=(Pipeline&&) = delete;
 
+    inline VkPipeline get() const { return m_pipeline; }
+
   private:
     const LogicalDevice& m_logicalDevice;
 

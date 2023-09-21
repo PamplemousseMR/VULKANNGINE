@@ -19,6 +19,8 @@ class SwapChain
 
     SwapChain& operator=(SwapChain&&) = delete;
 
+    inline VkSwapchainKHR get() const { return m_swapChain; }
+
     inline const std::vector<VkImage>& getImages() const { return m_swapChainImages; }
 
     inline const VkSurfaceFormatKHR& getFormat() const { return m_surfaceFormat; }

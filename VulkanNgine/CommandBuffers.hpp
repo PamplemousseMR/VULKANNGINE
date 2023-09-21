@@ -18,6 +18,8 @@ class CommandBuffers
 
     CommandBuffers& operator=(CommandBuffers&&) = delete;
 
+    inline const std::vector<VkCommandBuffer>& get() const { return m_commandBuffers; }
+
   private:
     std::vector<VkCommandBuffer> m_commandBuffers;
 };

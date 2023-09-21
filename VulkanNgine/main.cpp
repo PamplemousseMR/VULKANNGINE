@@ -6,6 +6,7 @@
 #include "PhysicalDevice.hpp"
 #include "Pipeline.hpp"
 #include "RenderPass.hpp"
+#include "Semaphore.hpp"
 #include "ShaderModule.hpp"
 #include "Surface.hpp"
 #include "SwapChain.hpp"
@@ -95,7 +96,95 @@ int main()
 
     CommandBuffers commandBuffers(logicalDevice, commandPool, swapChainImageViews.get().size());
 
-    window.run();
+    for(size_t i = 0; i < swapChainImageViews.get().size(); ++i)
+    {
+        VkCommandBufferBeginInfo commandBufferBeginInfo{};
+        commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        commandBufferBeginInfo.flags = 0;
+        commandBufferBeginInfo.pInheritanceInfo = nullptr;
+
+        if(vkBeginCommandBuffer(commandBuffers.get()[i], &commandBufferBeginInfo) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to begin command buffer");
+        }
+
+        // Information redondante: frameBuffer / render pass, pipeline / render pass par exemple, pipeline => viewport
+        // => renderarea dupliqué
+        VkRenderPassBeginInfo renderPassBeginInfo{};
+        renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassBeginInfo.renderPass = renderPass.get();
+        renderPassBeginInfo.framebuffer = framebuffers[i].get();
+        renderPassBeginInfo.renderArea.offset = {0, 0};
+        renderPassBeginInfo.renderArea.extent = swapChain.getExtent();
+
+        VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
+        renderPassBeginInfo.clearValueCount = 1;
+        renderPassBeginInfo.pClearValues = &clearColor;
+
+        vkCmdBeginRenderPass(commandBuffers.get()[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+        vkCmdBindPipeline(commandBuffers.get()[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.get());
+
+        vkCmdDraw(commandBuffers.get()[i], 3, 1, 0, 0);
+
+        vkCmdEndRenderPass(commandBuffers.get()[i]);
+
+        if(vkEndCommandBuffer(commandBuffers.get()[i]) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to end command buffer");
+        }
+    }
+
+    Semaphore imageAvailableSemaphore(logicalDevice);
+    Semaphore renderFinishedSemaphore(logicalDevice);
+
+    while(!window.shouldClose())
+    {
+        window.poolEvent();
+
+        uint32_t imageIndex;
+        vkAcquireNextImageKHR(
+          logicalDevice.get(), swapChain.get(), UINT64_MAX, imageAvailableSemaphore.get(), VK_NULL_HANDLE, &imageIndex);
+
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+        VkSemaphore waitSemaphores[] = {imageAvailableSemaphore.get()};
+        // Information dupliquée dans la subpassDependency de la render pass
+        VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = waitSemaphores;
+        submitInfo.pWaitDstStageMask = waitStages;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &(commandBuffers.get()[imageIndex]);
+
+        VkSemaphore signalSemaphores[] = {renderFinishedSemaphore.get()};
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = signalSemaphores;
+
+        // Pourquoi faire ca si le commandBuffers.get()[imageIndex] connais deja la graphique queue ?
+        if(vkQueueSubmit(logicalDevice.getGraphicQueue(), 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to submit queue");
+        }
+
+        VkPresentInfoKHR presentInfoKHR{};
+        presentInfoKHR.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        presentInfoKHR.waitSemaphoreCount = 1;
+        presentInfoKHR.pWaitSemaphores = signalSemaphores;
+        VkSwapchainKHR swapChainsKHR[] = {swapChain.get()};
+        presentInfoKHR.swapchainCount = 1;
+        presentInfoKHR.pSwapchains = swapChainsKHR;
+        presentInfoKHR.pImageIndices = &imageIndex;
+        presentInfoKHR.pResults = nullptr;
+
+        vkQueuePresentKHR(logicalDevice.getPresentQueue(), &presentInfoKHR);
+        vkQueueWaitIdle(logicalDevice.getPresentQueue());
+    }
+
+    vkDeviceWaitIdle(logicalDevice.get());
+
+    // IV-D-3-h. Rendu en cours
 
     return EXIT_SUCCESS;
 }

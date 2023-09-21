@@ -19,6 +19,8 @@ class LogicalDevice
 
     inline VkDevice get() const { return m_device; }
 
+    inline VkQueue getGraphicQueue() const { return m_graphicQueue; }
+
     inline uint32_t getGraphicQueueIdx() const { return m_graphicQueueIdx; }
 
     inline uint32_t getComputeQueueIdx() const { return m_computeQueueIdx; }
@@ -28,6 +30,8 @@ class LogicalDevice
     inline uint32_t getSparseQueueIdx() const { return m_sparseQueueIdx; }
 
     inline uint32_t getProtectQueueIdx() const { return m_protectQueueIdx; }
+
+    inline VkQueue getPresentQueue() const { return m_presentQueue; }
 
     inline uint32_t getPresentQueueIdx() const { return m_presentQueueIdx; }
 

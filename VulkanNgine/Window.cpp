@@ -30,13 +30,9 @@ Window::~Window()
     glfwTerminate();
 }
 
-void Window::run()
-{
-    while(!glfwWindowShouldClose(m_window))
-    {
-        glfwPollEvents();
-    }
-}
+bool Window::shouldClose() { return glfwWindowShouldClose(m_window); }
+
+void Window::poolEvent() { glfwPollEvents(); }
 
 std::vector<const char*> Window::getRequiredInstanceExtensions() const
 {

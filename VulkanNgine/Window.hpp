@@ -25,7 +25,9 @@ class Window
 
     Window& operator=(Window&&) = delete;
 
-    void run();
+    bool shouldClose();
+
+    void poolEvent();
 
     std::vector<const char*> getRequiredInstanceExtensions() const;
 

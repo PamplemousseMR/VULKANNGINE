@@ -25,6 +25,8 @@ class FrameBuffer
 
     FrameBuffer& operator=(FrameBuffer&&) = delete;
 
+    inline VkFramebuffer get() const { return m_framebuffer; }
+
   private:
     const LogicalDevice& m_logicalDevice;
 
