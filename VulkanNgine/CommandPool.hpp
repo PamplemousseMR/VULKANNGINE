@@ -17,6 +17,8 @@ class CommandPool
 
     CommandPool& operator=(CommandPool&&) = delete;
 
+    inline VkCommandPool get() const { return m_commandPool; }
+
   private:
     const LogicalDevice& m_logicalDevice;
 

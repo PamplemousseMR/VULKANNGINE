@@ -1,3 +1,4 @@
+#include "CommandBuffers.hpp"
 #include "CommandPool.hpp"
 #include "FrameBuffer.hpp"
 #include "Instance.hpp"
@@ -91,6 +92,8 @@ int main()
     }
 
     CommandPool commandPool(logicalDevice, VK_QUEUE_GRAPHICS_BIT);
+
+    CommandBuffers commandBuffers(logicalDevice, commandPool, swapChainImageViews.get().size());
 
     window.run();
 
