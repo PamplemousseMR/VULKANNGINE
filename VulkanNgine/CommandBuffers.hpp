@@ -21,5 +21,9 @@ class CommandBuffers
     inline const std::vector<VkCommandBuffer>& get() const { return m_commandBuffers; }
 
   private:
+    const LogicalDevice& m_logicalDevice;
+
+    const CommandPool& m_commandPool;
+
     std::vector<VkCommandBuffer> m_commandBuffers;
 };

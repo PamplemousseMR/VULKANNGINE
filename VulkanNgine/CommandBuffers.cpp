@@ -1,6 +1,8 @@
 #include "CommandBuffers.hpp"
 
 CommandBuffers::CommandBuffers(const LogicalDevice& _logicalDevice, const CommandPool& _commandPool, size_t count)
+  : m_logicalDevice(_logicalDevice)
+  , m_commandPool(_commandPool)
 {
     m_commandBuffers.resize(count);
 
@@ -16,4 +18,10 @@ CommandBuffers::CommandBuffers(const LogicalDevice& _logicalDevice, const Comman
     }
 }
 
-CommandBuffers::~CommandBuffers() {}
+CommandBuffers::~CommandBuffers()
+{
+    vkFreeCommandBuffers(m_logicalDevice.get(),
+                         m_commandPool.get(),
+                         static_cast<uint32_t>(m_commandBuffers.size()),
+                         m_commandBuffers.data());
+}

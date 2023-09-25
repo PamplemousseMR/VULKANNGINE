@@ -22,5 +22,5 @@ Semaphore::~Semaphore()
 
 Semaphore::Semaphore(Semaphore&& _s)
   : m_logicalDevice(std::move(_s.m_logicalDevice))
-  , m_semaphore(std::move(_s.m_semaphore))
+  , m_semaphore(std::exchange(_s.m_semaphore, VK_NULL_HANDLE))
 {}
