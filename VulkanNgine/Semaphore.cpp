@@ -12,4 +12,15 @@ Semaphore::Semaphore(const LogicalDevice& _logicalDevice)
     }
 }
 
-Semaphore::~Semaphore() { vkDestroySemaphore(m_logicalDevice.get(), m_semaphore, nullptr); }
+Semaphore::~Semaphore()
+{
+    if(m_semaphore != VK_NULL_HANDLE)
+    {
+        vkDestroySemaphore(m_logicalDevice.get(), m_semaphore, nullptr);
+    }
+}
+
+Semaphore::Semaphore(Semaphore&& _s)
+  : m_logicalDevice(std::move(_s.m_logicalDevice))
+  , m_semaphore(std::move(_s.m_semaphore))
+{}

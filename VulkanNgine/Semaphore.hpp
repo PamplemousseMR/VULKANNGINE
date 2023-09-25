@@ -11,7 +11,7 @@ class Semaphore
 
     Semaphore(const Semaphore&) = delete;
 
-    Semaphore(Semaphore&&) = delete;
+    Semaphore(Semaphore&& _s);
 
     Semaphore& operator=(const Semaphore&) = delete;
 
@@ -22,5 +22,5 @@ class Semaphore
   private:
     const LogicalDevice& m_logicalDevice;
 
-    VkSemaphore m_semaphore;
+    VkSemaphore m_semaphore{VK_NULL_HANDLE};
 };

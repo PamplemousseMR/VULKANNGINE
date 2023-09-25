@@ -7,6 +7,7 @@ set(VKNGINE_APP_NAME VKViewer)
 set(VKNGINE_SRC
         CommandBuffers.cpp
         CommandPool.cpp
+        Fence.cpp
         FrameBuffer.cpp
         Instance.cpp
         LogicalDevice.cpp
@@ -24,6 +25,7 @@ set(VKNGINE_SRC
 set(VKNGINE_HEADER
         CommandBuffers.hpp
         CommandPool.hpp
+        Fence.hpp
         FrameBuffer.hpp
         Instance.hpp
         logger.hpp

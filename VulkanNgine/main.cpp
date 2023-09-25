@@ -1,5 +1,6 @@
 #include "CommandBuffers.hpp"
 #include "CommandPool.hpp"
+#include "Fence.hpp"
 #include "FrameBuffer.hpp"
 #include "Instance.hpp"
 #include "LogicalDevice.hpp"
@@ -16,6 +17,8 @@
 
 #include <cstdlib>
 #include <iostream>
+
+constexpr size_t MAX_FRAMES_IN_FLIGHT = 3;
 
 int main()
 {
@@ -133,21 +136,48 @@ int main()
         }
     }
 
-    Semaphore imageAvailableSemaphore(logicalDevice);
-    Semaphore renderFinishedSemaphore(logicalDevice);
+    std::vector<Semaphore> imageAvailableSemaphores;
+    std::vector<Semaphore> renderFinishedSemaphores;
+    std::vector<Fence> inFlightFences;
+    std::vector<Fence*> imagesInFlight;
+
+    imageAvailableSemaphores.reserve(MAX_FRAMES_IN_FLIGHT);
+    renderFinishedSemaphores.reserve(MAX_FRAMES_IN_FLIGHT);
+    inFlightFences.reserve(MAX_FRAMES_IN_FLIGHT);
+    imagesInFlight.resize(swapChain.getImages().size(), VK_NULL_HANDLE);
+
+    for(size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    {
+        imageAvailableSemaphores.emplace_back(logicalDevice);
+        renderFinishedSemaphores.emplace_back(logicalDevice);
+        inFlightFences.emplace_back(logicalDevice);
+    }
+
+    size_t currentFrame = 0;
 
     while(!window.shouldClose())
     {
         window.poolEvent();
 
         uint32_t imageIndex;
-        vkAcquireNextImageKHR(
-          logicalDevice.get(), swapChain.get(), UINT64_MAX, imageAvailableSemaphore.get(), VK_NULL_HANDLE, &imageIndex);
+        vkAcquireNextImageKHR(logicalDevice.get(),
+                              swapChain.get(),
+                              UINT64_MAX,
+                              imageAvailableSemaphores.at(currentFrame).get(),
+                              VK_NULL_HANDLE,
+                              &imageIndex);
+
+        if(imagesInFlight.at(imageIndex) != VK_NULL_HANDLE)
+        {
+            imagesInFlight.at(imageIndex)->wait();
+        }
+
+        imagesInFlight[imageIndex] = &(inFlightFences.at(currentFrame));
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-        VkSemaphore waitSemaphores[] = {imageAvailableSemaphore.get()};
+        VkSemaphore waitSemaphores[] = {imageAvailableSemaphores.at(currentFrame).get()};
         VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
         submitInfo.waitSemaphoreCount = 1;
         submitInfo.pWaitSemaphores = waitSemaphores;
@@ -155,11 +185,14 @@ int main()
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &(commandBuffers.get()[imageIndex]);
 
-        VkSemaphore signalSemaphores[] = {renderFinishedSemaphore.get()};
+        VkSemaphore signalSemaphores[] = {renderFinishedSemaphores.at(currentFrame).get()};
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = signalSemaphores;
 
-        if(vkQueueSubmit(logicalDevice.getGraphicQueue(), 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
+        inFlightFences.at(currentFrame).reset();
+
+        if(vkQueueSubmit(logicalDevice.getGraphicQueue(), 1, &submitInfo, inFlightFences.at(currentFrame).get()) !=
+           VK_SUCCESS)
         {
             throw std::runtime_error("Failed to submit queue");
         }
@@ -175,14 +208,13 @@ int main()
         presentInfoKHR.pResults = nullptr;
 
         vkQueuePresentKHR(logicalDevice.getPresentQueue(), &presentInfoKHR);
-        vkQueueWaitIdle(logicalDevice.getPresentQueue());
+        // vkQueueWaitIdle(logicalDevice.getPresentQueue());
+
+        currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
 
     vkDeviceWaitIdle(logicalDevice.get());
 
-    // Why FrameBuffer and Pipeline needs the RenderPass since the VkRenderPassBeginInfo knows it, duplicated info:
-    // https://www.reddit.com/r/vulkan/comments/kjzkqi/what_is_the_reason_we_reference_render_pass_in/
-    // How to use pipeline in multiple RenderPass ?
     // Why VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT in VkSubmitInfo and VkSubpassDependency ? same information
     // Why CommandBuffer from CommandPool from Queue, to use the same queue in vkQueueSubmit who use the CommandBuffer ?
 
