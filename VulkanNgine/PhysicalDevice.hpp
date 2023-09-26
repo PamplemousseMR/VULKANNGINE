@@ -47,6 +47,8 @@ class PhysicalDevice
 
     inline const SwapChainSupportDetails getSwapChainSupportDetails() const { return m_swapChainSupportDetails; }
 
+    uint32_t findMemoryType(uint32_t _typeFilter, VkMemoryPropertyFlags _properties) const;
+
   private:
     PhysicalDevice(VkPhysicalDevice _physicalDevice,
                    const std::string& _name,

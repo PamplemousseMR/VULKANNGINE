@@ -5,8 +5,10 @@
 set(VKNGINE_APP_NAME VKViewer)
 
 set(VKNGINE_SRC
+        Buffer.cpp
         CommandBuffers.cpp
         CommandPool.cpp
+        DeviceMemory.cpp
         Fence.cpp
         FrameBuffer.cpp
         Instance.cpp
@@ -23,8 +25,10 @@ set(VKNGINE_SRC
         Window.cpp)
 
 set(VKNGINE_HEADER
+        Buffer.hpp
         CommandBuffers.hpp
         CommandPool.hpp
+        DeviceMemory.hpp
         Fence.hpp
         FrameBuffer.hpp
         Instance.hpp

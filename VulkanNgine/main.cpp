@@ -1,5 +1,7 @@
+#include "Buffer.hpp"
 #include "CommandBuffers.hpp"
 #include "CommandPool.hpp"
+#include "DeviceMemory.hpp"
 #include "Fence.hpp"
 #include "FrameBuffer.hpp"
 #include "Instance.hpp"
@@ -75,6 +77,13 @@ int main()
 
     LogicalDevice logicalDevice(*selectedDevice);
 
+    const std::vector<Buffer::Vertex> vertices = {
+      {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}}, {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}}, {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+
+    Buffer buffer(logicalDevice, vertices);
+
+    DeviceMemory deviceMemory(logicalDevice, *selectedDevice, buffer);
+
     SwapChain swapChain(*selectedDevice, surface, logicalDevice);
 
     SwapChainImageViews swapChainImageViews(logicalDevice, swapChain);
@@ -125,6 +134,10 @@ int main()
         vkCmdBeginRenderPass(commandBuffers.get()[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
         vkCmdBindPipeline(commandBuffers.get()[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.get());
+
+        VkBuffer buffers[] = {buffer.get()};
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(commandBuffers.get()[i], 0, 1, buffers, offsets);
 
         vkCmdDraw(commandBuffers.get()[i], 3, 1, 0, 0);
 

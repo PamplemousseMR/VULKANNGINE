@@ -160,3 +160,20 @@ PhysicalDevice::PhysicalDevice(VkPhysicalDevice _physicalDevice,
   , m_swapChainSupport(_swapChainSupport)
   , m_swapChainSupportDetails(_swapChainSupportDetails)
 {}
+
+uint32_t PhysicalDevice::findMemoryType(uint32_t _typeFilter, VkMemoryPropertyFlags _properties) const
+{
+    VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties;
+    vkGetPhysicalDeviceMemoryProperties(m_physicalDevice, &physicalDeviceMemoryProperties);
+
+    for(uint32_t i = 0; i < physicalDeviceMemoryProperties.memoryTypeCount; ++i)
+    {
+        if(_typeFilter & (1u << i) &&
+           (physicalDeviceMemoryProperties.memoryTypes[i].propertyFlags & _properties) == _properties)
+        {
+            return i;
+        }
+    }
+
+    throw std::runtime_error("Failed to find required memory type");
+}
