@@ -24,7 +24,7 @@ class DeviceMemory
 
     inline VkDeviceMemory get() const { return m_deviceMemory; }
 
-    void mapMemory(const std::vector<Buffer::Vertex>& _data) const;
+    void mapMemory(const void* _data) const;
 
   private:
     const LogicalDevice& m_logicalDevice;

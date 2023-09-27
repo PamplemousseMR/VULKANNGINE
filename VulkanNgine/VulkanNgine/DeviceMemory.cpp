@@ -24,10 +24,10 @@ DeviceMemory::DeviceMemory(const LogicalDevice& _logicalDevice,
 
 DeviceMemory::~DeviceMemory() { vkFreeMemory(m_logicalDevice.get(), m_deviceMemory, nullptr); }
 
-void DeviceMemory::mapMemory(const std::vector<Buffer::Vertex>& _data) const
+void DeviceMemory::mapMemory(const void* _data) const
 {
     void* data;
     vkMapMemory(m_logicalDevice.get(), m_deviceMemory, 0, m_buffer.getSize(), 0, &data);
-    memcpy(data, _data.data(), m_buffer.getSize());
+    memcpy(data, _data, m_buffer.getSize());
     vkUnmapMemory(m_logicalDevice.get(), m_deviceMemory);
 }

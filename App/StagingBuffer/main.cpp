@@ -95,7 +95,7 @@ int main()
                                          vertexStagingBuffer,
                                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-        vertexStagingMemory.mapMemory(vertices);
+        vertexStagingMemory.mapMemory(vertices.data());
 
         CommandPool transferCommandPool(logicalDevice, VK_QUEUE_TRANSFER_BIT);
 

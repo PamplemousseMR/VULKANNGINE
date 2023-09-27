@@ -24,7 +24,7 @@ constexpr size_t MAX_FRAMES_IN_FLIGHT = 3;
 
 int main()
 {
-    Window window("Basic");
+    Window window("IndexBuffer");
 
     Instance instance(window);
 
@@ -77,25 +77,105 @@ int main()
 
     LogicalDevice logicalDevice(*selectedDevice);
 
-    const std::vector<Buffer::Vertex> vertices = {
-      {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}}, {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}}, {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+    const std::vector<Buffer::Vertex> vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+                                                  {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+                                                  {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+                                                  {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}};
 
-    const VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+    const VkDeviceSize vertexBufferSize = sizeof(vertices[0]) * vertices.size();
 
-    Buffer vertexBuffer(logicalDevice, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, bufferSize);
+    Buffer vertexBuffer(
+      logicalDevice, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, vertexBufferSize);
 
-    DeviceMemory vertexMemory(logicalDevice,
-                              *selectedDevice,
-                              vertexBuffer,
-                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-    vertexMemory.mapMemory(vertices.data());
+    DeviceMemory vertexMemory(logicalDevice, *selectedDevice, vertexBuffer, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    CommandPool transferCommandPool(logicalDevice, VK_QUEUE_TRANSFER_BIT);
+
+    {
+        Buffer vertexStagingBuffer(logicalDevice, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, vertexBufferSize);
+
+        DeviceMemory vertexStagingMemory(logicalDevice,
+                                         *selectedDevice,
+                                         vertexStagingBuffer,
+                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+        vertexStagingMemory.mapMemory(vertices.data());
+
+        CommandBuffers transferCommandBuffers(logicalDevice, transferCommandPool, 1);
+
+        VkCommandBufferBeginInfo commandBufferBeginInfo{};
+        commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+        vkBeginCommandBuffer(transferCommandBuffers.get()[0], &commandBufferBeginInfo);
+
+        VkBufferCopy bufferCopy{};
+        bufferCopy.srcOffset = 0;
+        bufferCopy.dstOffset = 0;
+        bufferCopy.size = vertexBufferSize;
+        vkCmdCopyBuffer(transferCommandBuffers.get()[0], vertexStagingBuffer.get(), vertexBuffer.get(), 1, &bufferCopy);
+
+        vkEndCommandBuffer(transferCommandBuffers.get()[0]);
+
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &transferCommandBuffers.get()[0];
+
+        vkQueueSubmit(logicalDevice.getTransferQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueWaitIdle(logicalDevice.getTransferQueue());
+    }
+
+    const std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
+
+    const VkDeviceSize indicesBufferSize = sizeof(vertices[0]) * vertices.size();
+
+    Buffer indexBuffer(
+      logicalDevice, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, indicesBufferSize);
+
+    DeviceMemory indexMemory(logicalDevice, *selectedDevice, indexBuffer, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    {
+        Buffer indexStagingBuffer(logicalDevice, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, indicesBufferSize);
+
+        DeviceMemory indexStagingMemory(logicalDevice,
+                                        *selectedDevice,
+                                        indexStagingBuffer,
+                                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+        indexStagingMemory.mapMemory(indices.data());
+
+        CommandBuffers transferCommandBuffers(logicalDevice, transferCommandPool, 1);
+
+        VkCommandBufferBeginInfo commandBufferBeginInfo{};
+        commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+        vkBeginCommandBuffer(transferCommandBuffers.get()[0], &commandBufferBeginInfo);
+
+        VkBufferCopy bufferCopy{};
+        bufferCopy.srcOffset = 0;
+        bufferCopy.dstOffset = 0;
+        bufferCopy.size = indicesBufferSize;
+        vkCmdCopyBuffer(transferCommandBuffers.get()[0], indexStagingBuffer.get(), indexBuffer.get(), 1, &bufferCopy);
+
+        vkEndCommandBuffer(transferCommandBuffers.get()[0]);
+
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &transferCommandBuffers.get()[0];
+
+        vkQueueSubmit(logicalDevice.getTransferQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueWaitIdle(logicalDevice.getTransferQueue());
+    }
 
     SwapChain swapChain(*selectedDevice, surface, logicalDevice);
 
     SwapChainImageViews swapChainImageViews(logicalDevice, swapChain);
 
-    ShaderModule defaultVertShaderModule(logicalDevice, "buffer.vert.bin");
-    ShaderModule defaultFragShaderModule(logicalDevice, "buffer.frag.bin");
+    ShaderModule defaultVertShaderModule(logicalDevice, "indexBuffer.vert.bin");
+    ShaderModule defaultFragShaderModule(logicalDevice, "indexBuffer.frag.bin");
 
     RenderPass renderPass(logicalDevice, swapChain.getFormat().format);
 
@@ -110,9 +190,9 @@ int main()
         framebuffers.emplace_back(logicalDevice, renderPass, swapChainImageViews.get()[i], swapChain.getExtent());
     }
 
-    CommandPool commandPool(logicalDevice, VK_QUEUE_GRAPHICS_BIT);
+    CommandPool graphicCommandPool(logicalDevice, VK_QUEUE_GRAPHICS_BIT);
 
-    CommandBuffers commandBuffers(logicalDevice, commandPool, swapChainImageViews.get().size());
+    CommandBuffers graphicCommandBuffers(logicalDevice, graphicCommandPool, swapChainImageViews.get().size());
 
     for(size_t i = 0; i < swapChainImageViews.get().size(); ++i)
     {
@@ -121,7 +201,7 @@ int main()
         commandBufferBeginInfo.flags = 0;
         commandBufferBeginInfo.pInheritanceInfo = nullptr;
 
-        if(vkBeginCommandBuffer(commandBuffers.get()[i], &commandBufferBeginInfo) != VK_SUCCESS)
+        if(vkBeginCommandBuffer(graphicCommandBuffers.get()[i], &commandBufferBeginInfo) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to begin command buffer");
         }
@@ -137,19 +217,21 @@ int main()
         renderPassBeginInfo.clearValueCount = 1;
         renderPassBeginInfo.pClearValues = &clearColor;
 
-        vkCmdBeginRenderPass(commandBuffers.get()[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBeginRenderPass(graphicCommandBuffers.get()[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-        vkCmdBindPipeline(commandBuffers.get()[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.get());
+        vkCmdBindPipeline(graphicCommandBuffers.get()[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.get());
 
         VkBuffer buffers[] = {vertexBuffer.get()};
         VkDeviceSize offsets[] = {0};
-        vkCmdBindVertexBuffers(commandBuffers.get()[i], 0, 1, buffers, offsets);
+        vkCmdBindVertexBuffers(graphicCommandBuffers.get()[i], 0, 1, buffers, offsets);
 
-        vkCmdDraw(commandBuffers.get()[i], 3, 1, 0, 0);
+        vkCmdBindIndexBuffer(graphicCommandBuffers.get()[i], indexBuffer.get(), 0, VK_INDEX_TYPE_UINT16);
 
-        vkCmdEndRenderPass(commandBuffers.get()[i]);
+        vkCmdDrawIndexed(graphicCommandBuffers.get()[i], 6, 1, 0, 0, 0);
 
-        if(vkEndCommandBuffer(commandBuffers.get()[i]) != VK_SUCCESS)
+        vkCmdEndRenderPass(graphicCommandBuffers.get()[i]);
+
+        if(vkEndCommandBuffer(graphicCommandBuffers.get()[i]) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to end command buffer");
         }
@@ -202,7 +284,7 @@ int main()
         submitInfo.pWaitSemaphores = waitSemaphores;
         submitInfo.pWaitDstStageMask = waitStages;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &(commandBuffers.get()[imageIndex]);
+        submitInfo.pCommandBuffers = &(graphicCommandBuffers.get()[imageIndex]);
 
         VkSemaphore signalSemaphores[] = {renderFinishedSemaphores.at(currentFrame).get()};
         submitInfo.signalSemaphoreCount = 1;
