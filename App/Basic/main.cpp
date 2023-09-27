@@ -210,7 +210,6 @@ int main()
         presentInfoKHR.pResults = nullptr;
 
         vkQueuePresentKHR(logicalDevice.getPresentQueue(), &presentInfoKHR);
-        // vkQueueWaitIdle(logicalDevice.getPresentQueue());
 
         currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
@@ -219,8 +218,6 @@ int main()
 
     // Why VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT in VkSubmitInfo and VkSubpassDependency ? same information
     // Why CommandBuffer from CommandPool from Queue, to use the same queue in vkQueueSubmit who use the CommandBuffer ?
-
-    // IV-D-3-h. Rendu en cours
 
     return EXIT_SUCCESS;
 }
