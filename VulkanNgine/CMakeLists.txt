@@ -1,58 +1,55 @@
 #=======================================
-#                EXECUTABLE
+#                LIBRARY
 #=======================================
 
-set(VKNGINE_APP_NAME VKViewer)
+set(VKNGINE_LIB_NAME VKNgine)
 
 set(VKNGINE_SRC
-        Buffer.cpp
-        CommandBuffers.cpp
-        CommandPool.cpp
-        DeviceMemory.cpp
-        Fence.cpp
-        FrameBuffer.cpp
-        Instance.cpp
-        LogicalDevice.cpp
-        main.cpp
-        PhysicalDevice.cpp
-        Pipeline.cpp
-        RenderPass.cpp
-        Semaphore.cpp
-        ShaderModule.cpp
-        Surface.cpp
-        SwapChain.cpp
-        SwapChainImageViews.cpp
-        Window.cpp)
+        VulkanNgine/Buffer.cpp
+        VulkanNgine/CommandBuffers.cpp
+        VulkanNgine/CommandPool.cpp
+        VulkanNgine/DeviceMemory.cpp
+        VulkanNgine/Fence.cpp
+        VulkanNgine/FrameBuffer.cpp
+        VulkanNgine/Instance.cpp
+        VulkanNgine/LogicalDevice.cpp
+        VulkanNgine/PhysicalDevice.cpp
+        VulkanNgine/Pipeline.cpp
+        VulkanNgine/RenderPass.cpp
+        VulkanNgine/Semaphore.cpp
+        VulkanNgine/ShaderModule.cpp
+        VulkanNgine/Surface.cpp
+        VulkanNgine/SwapChain.cpp
+        VulkanNgine/SwapChainImageViews.cpp
+        VulkanNgine/Window.cpp)
 
 set(VKNGINE_HEADER
-        Buffer.hpp
-        CommandBuffers.hpp
-        CommandPool.hpp
-        DeviceMemory.hpp
-        Fence.hpp
-        FrameBuffer.hpp
-        Instance.hpp
-        logger.hpp
-        LogicalDevice.hpp
-        Pipeline.hpp
-        RenderPass.hpp
-        Semaphore.hpp
-        PhysicalDevice.hpp
-        ShaderModule.hpp
-        Surface.hpp
-        SwapChain.hpp
-        SwapChainImageViews.hpp
-        Window.hpp)
+        VulkanNgine/Buffer.hpp
+        VulkanNgine/CommandBuffers.hpp
+        VulkanNgine/CommandPool.hpp
+        VulkanNgine/DeviceMemory.hpp
+        VulkanNgine/Fence.hpp
+        VulkanNgine/FrameBuffer.hpp
+        VulkanNgine/Instance.hpp
+        VulkanNgine/logger.hpp
+        VulkanNgine/LogicalDevice.hpp
+        VulkanNgine/Pipeline.hpp
+        VulkanNgine/RenderPass.hpp
+        VulkanNgine/Semaphore.hpp
+        VulkanNgine/PhysicalDevice.hpp
+        VulkanNgine/ShaderModule.hpp
+        VulkanNgine/Surface.hpp
+        VulkanNgine/SwapChain.hpp
+        VulkanNgine/SwapChainImageViews.hpp
+        VulkanNgine/Window.hpp)
 
-set(VKNGINE_SHADER
-        Shaders/default.vert
-        Shaders/default.frag)
+add_library(${VKNGINE_LIB_NAME} STATIC ${VKNGINE_SRC} ${VKNGINE_HEADER} ${VKNGINE_SHADER})
 
-add_executable(${VKNGINE_APP_NAME} ${VKNGINE_SRC} ${VKNGINE_HEADER} ${VKNGINE_SHADER})
+target_include_directories(${VKNGINE_LIB_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(${VKNGINE_APP_NAME} PRIVATE glfw glm::glm Vulkan::Vulkan stdc++fs)
+target_link_libraries(${VKNGINE_LIB_NAME} PUBLIC glfw glm::glm Vulkan::Vulkan stdc++fs)
 
-target_compile_options(${VKNGINE_APP_NAME} PRIVATE $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:
+target_compile_options(${VKNGINE_LIB_NAME} PRIVATE $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:
     -Wall
     -Wextra
     -Wshadow
@@ -75,5 +72,3 @@ target_compile_options(${VKNGINE_APP_NAME} PRIVATE $<$<NOT:$<CXX_COMPILER_ID:MSV
     -Wduplicated-branches
     -Wuseless-cast
     -Wlogical-op>>)
-
-add_shader(${VKNGINE_APP_NAME} SOURCES ${VKNGINE_SHADER})

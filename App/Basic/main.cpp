@@ -1,21 +1,21 @@
-#include "Buffer.hpp"
-#include "CommandBuffers.hpp"
-#include "CommandPool.hpp"
-#include "DeviceMemory.hpp"
-#include "Fence.hpp"
-#include "FrameBuffer.hpp"
-#include "Instance.hpp"
-#include "LogicalDevice.hpp"
-#include "PhysicalDevice.hpp"
-#include "Pipeline.hpp"
-#include "RenderPass.hpp"
-#include "Semaphore.hpp"
-#include "ShaderModule.hpp"
-#include "Surface.hpp"
-#include "SwapChain.hpp"
-#include "SwapChainImageViews.hpp"
-#include "Window.hpp"
-#include "logger.hpp"
+#include "VulkanNgine/Buffer.hpp"
+#include "VulkanNgine/CommandBuffers.hpp"
+#include "VulkanNgine/CommandPool.hpp"
+#include "VulkanNgine/DeviceMemory.hpp"
+#include "VulkanNgine/Fence.hpp"
+#include "VulkanNgine/FrameBuffer.hpp"
+#include "VulkanNgine/Instance.hpp"
+#include "VulkanNgine/LogicalDevice.hpp"
+#include "VulkanNgine/PhysicalDevice.hpp"
+#include "VulkanNgine/Pipeline.hpp"
+#include "VulkanNgine/RenderPass.hpp"
+#include "VulkanNgine/Semaphore.hpp"
+#include "VulkanNgine/ShaderModule.hpp"
+#include "VulkanNgine/Surface.hpp"
+#include "VulkanNgine/SwapChain.hpp"
+#include "VulkanNgine/SwapChainImageViews.hpp"
+#include "VulkanNgine/Window.hpp"
+#include "VulkanNgine/logger.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -24,7 +24,7 @@ constexpr size_t MAX_FRAMES_IN_FLIGHT = 3;
 
 int main()
 {
-    Window window("VulkanNgine");
+    Window window("Basic");
 
     Instance instance(window);
 
@@ -80,20 +80,20 @@ int main()
     const std::vector<Buffer::Vertex> vertices = {
       {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}}, {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}}, {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
 
-    Buffer buffer(logicalDevice, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, vertices);
+    Buffer vertexBuffer(logicalDevice, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, vertices);
 
-    DeviceMemory deviceMemory(logicalDevice,
+    DeviceMemory vertexMemory(logicalDevice,
                               *selectedDevice,
-                              buffer,
+                              vertexBuffer,
                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-    deviceMemory.mapMemory();
+    vertexMemory.mapMemory();
 
     SwapChain swapChain(*selectedDevice, surface, logicalDevice);
 
     SwapChainImageViews swapChainImageViews(logicalDevice, swapChain);
 
-    ShaderModule defaultVertShaderModule(logicalDevice, "Shaders/default.vert.bin");
-    ShaderModule defaultFragShaderModule(logicalDevice, "Shaders/default.frag.bin");
+    ShaderModule defaultVertShaderModule(logicalDevice, "basic.vert.bin");
+    ShaderModule defaultFragShaderModule(logicalDevice, "basic.frag.bin");
 
     RenderPass renderPass(logicalDevice, swapChain.getFormat().format);
 
@@ -139,7 +139,7 @@ int main()
 
         vkCmdBindPipeline(commandBuffers.get()[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.get());
 
-        VkBuffer buffers[] = {buffer.get()};
+        VkBuffer buffers[] = {vertexBuffer.get()};
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffers.get()[i], 0, 1, buffers, offsets);
 
