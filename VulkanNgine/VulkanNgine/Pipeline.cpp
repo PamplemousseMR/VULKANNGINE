@@ -7,7 +7,7 @@ Pipeline::Pipeline(const LogicalDevice& _logicalDevice,
                    const ShaderModule& _fragmentShaderModule,
                    const RenderPass& _renderPass,
                    VkExtent2D _size,
-                   bool _vertexInput)
+                   VkPipelineVertexInputStateCreateInfo _vertexInputState)
   : m_logicalDevice(_logicalDevice)
 {
     // Programmable steps
@@ -41,42 +41,6 @@ Pipeline::Pipeline(const LogicalDevice& _logicalDevice,
     }
 
     // Fixed steps
-    // Vertex input
-    VkVertexInputBindingDescription vertexInputBindingDescription{};
-    vertexInputBindingDescription.binding = 0;
-    vertexInputBindingDescription.stride = sizeof(Buffer::Vertex);
-    vertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-    std::array<VkVertexInputAttributeDescription, 2> vertexInputAttributeDescriptions{};
-    vertexInputAttributeDescriptions[0].binding = 0;
-    vertexInputAttributeDescriptions[0].location = 0;
-    vertexInputAttributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-    vertexInputAttributeDescriptions[0].offset = offsetof(Buffer::Vertex, m_pos);
-
-    vertexInputAttributeDescriptions[1].binding = 0;
-    vertexInputAttributeDescriptions[1].location = 1;
-    vertexInputAttributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-    vertexInputAttributeDescriptions[1].offset = offsetof(Buffer::Vertex, m_color);
-
-    // Input assembler
-    VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo{};
-    vertexInputStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    if(_vertexInput)
-    {
-        vertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
-        vertexInputStateCreateInfo.pVertexBindingDescriptions = &vertexInputBindingDescription;
-        vertexInputStateCreateInfo.vertexAttributeDescriptionCount =
-          static_cast<uint32_t>(vertexInputAttributeDescriptions.size());
-        vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexInputAttributeDescriptions.data();
-    }
-    else
-    {
-        vertexInputStateCreateInfo.vertexBindingDescriptionCount = 0;
-        vertexInputStateCreateInfo.pVertexBindingDescriptions = nullptr;
-        vertexInputStateCreateInfo.vertexAttributeDescriptionCount = 0;
-        vertexInputStateCreateInfo.pVertexAttributeDescriptions = nullptr;
-    }
-
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo{};
     inputAssemblyStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     inputAssemblyStateCreateInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -164,7 +128,7 @@ Pipeline::Pipeline(const LogicalDevice& _logicalDevice,
     graphicsPipelineCreateInfo.stageCount = 2;
     graphicsPipelineCreateInfo.pStages = shaderStageCreateInfo;
 
-    graphicsPipelineCreateInfo.pVertexInputState = &vertexInputStateCreateInfo;
+    graphicsPipelineCreateInfo.pVertexInputState = &_vertexInputState;
     graphicsPipelineCreateInfo.pInputAssemblyState = &inputAssemblyStateCreateInfo;
     graphicsPipelineCreateInfo.pViewportState = &viewportStateCreateInfo;
     graphicsPipelineCreateInfo.pRasterizationState = &rasterizationStateCreateInfo;

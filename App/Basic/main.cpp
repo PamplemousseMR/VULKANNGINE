@@ -86,8 +86,20 @@ int main()
 
     RenderPass renderPass(logicalDevice, swapChain.getFormat().format);
 
-    Pipeline pipeline(
-      logicalDevice, defaultVertShaderModule, defaultFragShaderModule, renderPass, swapChain.getExtent(), false);
+    // Input assembler
+    VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo{};
+    vertexInputStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInputStateCreateInfo.vertexBindingDescriptionCount = 0;
+    vertexInputStateCreateInfo.pVertexBindingDescriptions = nullptr;
+    vertexInputStateCreateInfo.vertexAttributeDescriptionCount = 0;
+    vertexInputStateCreateInfo.pVertexAttributeDescriptions = nullptr;
+
+    Pipeline pipeline(logicalDevice,
+                      defaultVertShaderModule,
+                      defaultFragShaderModule,
+                      renderPass,
+                      swapChain.getExtent(),
+                      vertexInputStateCreateInfo);
 
     std::vector<FrameBuffer> framebuffers;
     framebuffers.reserve(swapChainImageViews.get().size());

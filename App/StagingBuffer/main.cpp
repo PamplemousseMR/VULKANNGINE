@@ -133,8 +133,36 @@ int main()
 
     RenderPass renderPass(logicalDevice, swapChain.getFormat().format);
 
-    Pipeline pipeline(
-      logicalDevice, defaultVertShaderModule, defaultFragShaderModule, renderPass, swapChain.getExtent(), true);
+    VkVertexInputBindingDescription vertexInputBindingDescription{};
+    vertexInputBindingDescription.binding = 0;
+    vertexInputBindingDescription.stride = sizeof(Buffer::Vertex);
+    vertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+    std::array<VkVertexInputAttributeDescription, 2> vertexInputAttributeDescriptions{};
+    vertexInputAttributeDescriptions[0].binding = 0;
+    vertexInputAttributeDescriptions[0].location = 0;
+    vertexInputAttributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+    vertexInputAttributeDescriptions[0].offset = offsetof(Buffer::Vertex, m_pos);
+
+    vertexInputAttributeDescriptions[1].binding = 0;
+    vertexInputAttributeDescriptions[1].location = 1;
+    vertexInputAttributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+    vertexInputAttributeDescriptions[1].offset = offsetof(Buffer::Vertex, m_color);
+
+    VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo{};
+    vertexInputStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
+    vertexInputStateCreateInfo.pVertexBindingDescriptions = &vertexInputBindingDescription;
+    vertexInputStateCreateInfo.vertexAttributeDescriptionCount =
+      static_cast<uint32_t>(vertexInputAttributeDescriptions.size());
+    vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexInputAttributeDescriptions.data();
+
+    Pipeline pipeline(logicalDevice,
+                      defaultVertShaderModule,
+                      defaultFragShaderModule,
+                      renderPass,
+                      swapChain.getExtent(),
+                      vertexInputStateCreateInfo);
 
     std::vector<FrameBuffer> framebuffers;
     framebuffers.reserve(swapChainImageViews.get().size());
