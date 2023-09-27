@@ -25,6 +25,8 @@ class LogicalDevice
 
     inline uint32_t getComputeQueueIdx() const { return m_computeQueueIdx; }
 
+    inline VkQueue getTransferQueue() const { return m_transferQueue; }
+
     inline uint32_t getTransferQueueIdx() const { return m_transferQueueIdx; }
 
     inline uint32_t getSparseQueueIdx() const { return m_sparseQueueIdx; }

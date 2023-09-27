@@ -13,7 +13,7 @@ class Buffer
         glm::vec3 m_color;
     };
 
-    Buffer(const LogicalDevice& _logicalDevice, VkBufferUsageFlags _usage, const std::vector<Buffer::Vertex>& _data);
+    Buffer(const LogicalDevice& _logicalDevice, VkBufferUsageFlags _usage, VkDeviceSize _size);
 
     ~Buffer();
 
@@ -29,14 +29,12 @@ class Buffer
 
     inline VkMemoryRequirements getRequirements() const { return m_requirements; }
 
-    inline size_t getSize() const { return sizeof(m_data[0]) * m_data.size(); }
-
-    inline const std::vector<Buffer::Vertex>& getData() const { return m_data; }
+    inline VkDeviceSize getSize() const { return m_size; }
 
   private:
     const LogicalDevice& m_logicalDevice;
 
-    std::vector<Buffer::Vertex> m_data;
+    const VkDeviceSize m_size;
 
     VkBuffer m_buffer;
 

@@ -7,7 +7,10 @@
 class DeviceMemory
 {
   public:
-    DeviceMemory(const LogicalDevice& _logicalDevice, const PhysicalDevice& _physicalDevice, const Buffer& _buffer, VkMemoryPropertyFlags _properties);
+    DeviceMemory(const LogicalDevice& _logicalDevice,
+                 const PhysicalDevice& _physicalDevice,
+                 const Buffer& _buffer,
+                 VkMemoryPropertyFlags _properties);
 
     ~DeviceMemory();
 
@@ -21,7 +24,7 @@ class DeviceMemory
 
     inline VkDeviceMemory get() const { return m_deviceMemory; }
 
-    void mapMemory() const;
+    void mapMemory(const std::vector<Buffer::Vertex>& _data) const;
 
   private:
     const LogicalDevice& m_logicalDevice;
