@@ -4,7 +4,7 @@
 
 set(VKNGINE_APP_NAME StagingBuffer)
 
-add_executable(${VKNGINE_APP_NAME} main.cpp)
+add_executable(${VKNGINE_APP_NAME} main.cpp stagingBuffer.vert stagingBuffer.frag Pipeline.hpp Pipeline.cpp)
 
 target_link_libraries(${VKNGINE_APP_NAME} PRIVATE VKNgine)
 

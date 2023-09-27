@@ -1,9 +1,9 @@
 #pragma once
 
-#include "LogicalDevice.hpp"
-#include "RenderPass.hpp"
-#include "ShaderModule.hpp"
-#include "SwapChain.hpp"
+#include "VulkanNgine/LogicalDevice.hpp"
+#include "VulkanNgine/RenderPass.hpp"
+#include "VulkanNgine/ShaderModule.hpp"
+#include "VulkanNgine/SwapChain.hpp"
 
 class Pipeline
 {
@@ -12,8 +12,7 @@ class Pipeline
              const ShaderModule& _vertexShaderModule,
              const ShaderModule& _fragmentShaderModule,
              const RenderPass& _renderPass,
-             VkExtent2D _size,
-             VkPipelineVertexInputStateCreateInfo _vertexInputState);
+             VkExtent2D _size);
 
     ~Pipeline();
 

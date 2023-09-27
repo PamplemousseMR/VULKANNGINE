@@ -14,7 +14,6 @@ set(VKNGINE_SRC
         VulkanNgine/Instance.cpp
         VulkanNgine/LogicalDevice.cpp
         VulkanNgine/PhysicalDevice.cpp
-        VulkanNgine/Pipeline.cpp
         VulkanNgine/RenderPass.cpp
         VulkanNgine/Semaphore.cpp
         VulkanNgine/ShaderModule.cpp
@@ -33,7 +32,6 @@ set(VKNGINE_HEADER
         VulkanNgine/Instance.hpp
         VulkanNgine/logger.hpp
         VulkanNgine/LogicalDevice.hpp
-        VulkanNgine/Pipeline.hpp
         VulkanNgine/RenderPass.hpp
         VulkanNgine/Semaphore.hpp
         VulkanNgine/PhysicalDevice.hpp
@@ -43,7 +41,7 @@ set(VKNGINE_HEADER
         VulkanNgine/SwapChainImageViews.hpp
         VulkanNgine/Window.hpp)
 
-add_library(${VKNGINE_LIB_NAME} STATIC ${VKNGINE_SRC} ${VKNGINE_HEADER} ${VKNGINE_SHADER})
+add_library(${VKNGINE_LIB_NAME} STATIC ${VKNGINE_SRC} ${VKNGINE_HEADER})
 
 target_include_directories(${VKNGINE_LIB_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 

@@ -1,3 +1,4 @@
+#include "Pipeline.hpp"
 #include "VulkanNgine/Buffer.hpp"
 #include "VulkanNgine/CommandBuffers.hpp"
 #include "VulkanNgine/CommandPool.hpp"
@@ -7,7 +8,6 @@
 #include "VulkanNgine/Instance.hpp"
 #include "VulkanNgine/LogicalDevice.hpp"
 #include "VulkanNgine/PhysicalDevice.hpp"
-#include "VulkanNgine/Pipeline.hpp"
 #include "VulkanNgine/RenderPass.hpp"
 #include "VulkanNgine/Semaphore.hpp"
 #include "VulkanNgine/ShaderModule.hpp"
@@ -86,20 +86,8 @@ int main()
 
     RenderPass renderPass(logicalDevice, swapChain.getFormat().format);
 
-    // Input assembler
-    VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo{};
-    vertexInputStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputStateCreateInfo.vertexBindingDescriptionCount = 0;
-    vertexInputStateCreateInfo.pVertexBindingDescriptions = nullptr;
-    vertexInputStateCreateInfo.vertexAttributeDescriptionCount = 0;
-    vertexInputStateCreateInfo.pVertexAttributeDescriptions = nullptr;
-
-    Pipeline pipeline(logicalDevice,
-                      defaultVertShaderModule,
-                      defaultFragShaderModule,
-                      renderPass,
-                      swapChain.getExtent(),
-                      vertexInputStateCreateInfo);
+    Pipeline pipeline(
+      logicalDevice, defaultVertShaderModule, defaultFragShaderModule, renderPass, swapChain.getExtent());
 
     std::vector<FrameBuffer> framebuffers;
     framebuffers.reserve(swapChainImageViews.get().size());
