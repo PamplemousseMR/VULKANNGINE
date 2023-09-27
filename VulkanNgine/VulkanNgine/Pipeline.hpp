@@ -12,7 +12,8 @@ class Pipeline
              const ShaderModule& _vertexShaderModule,
              const ShaderModule& _fragmentShaderModule,
              const RenderPass& _renderPass,
-             VkExtent2D _size);
+             VkExtent2D _size,
+             bool _vertexInput);
 
     ~Pipeline();
 

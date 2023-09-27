@@ -77,17 +77,28 @@ int main()
 
     LogicalDevice logicalDevice(*selectedDevice);
 
+    const std::vector<Buffer::Vertex> vertices = {
+      {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}}, {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}}, {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+
+    Buffer vertexBuffer(logicalDevice, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, vertices);
+
+    DeviceMemory vertexMemory(logicalDevice,
+                              *selectedDevice,
+                              vertexBuffer,
+                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    vertexMemory.mapMemory();
+
     SwapChain swapChain(*selectedDevice, surface, logicalDevice);
 
     SwapChainImageViews swapChainImageViews(logicalDevice, swapChain);
 
-    ShaderModule defaultVertShaderModule(logicalDevice, "basic.vert.bin");
-    ShaderModule defaultFragShaderModule(logicalDevice, "basic.frag.bin");
+    ShaderModule defaultVertShaderModule(logicalDevice, "buffer.vert.bin");
+    ShaderModule defaultFragShaderModule(logicalDevice, "buffer.frag.bin");
 
     RenderPass renderPass(logicalDevice, swapChain.getFormat().format);
 
     Pipeline pipeline(
-      logicalDevice, defaultVertShaderModule, defaultFragShaderModule, renderPass, swapChain.getExtent(), false);
+      logicalDevice, defaultVertShaderModule, defaultFragShaderModule, renderPass, swapChain.getExtent(), true);
 
     std::vector<FrameBuffer> framebuffers;
     framebuffers.reserve(swapChainImageViews.get().size());
@@ -127,6 +138,10 @@ int main()
         vkCmdBeginRenderPass(commandBuffers.get()[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
         vkCmdBindPipeline(commandBuffers.get()[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.get());
+
+        VkBuffer buffers[] = {vertexBuffer.get()};
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(commandBuffers.get()[i], 0, 1, buffers, offsets);
 
         vkCmdDraw(commandBuffers.get()[i], 3, 1, 0, 0);
 

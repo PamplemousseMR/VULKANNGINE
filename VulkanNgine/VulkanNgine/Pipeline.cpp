@@ -6,7 +6,8 @@ Pipeline::Pipeline(const LogicalDevice& _logicalDevice,
                    const ShaderModule& _vertexShaderModule,
                    const ShaderModule& _fragmentShaderModule,
                    const RenderPass& _renderPass,
-                   VkExtent2D _size)
+                   VkExtent2D _size,
+                   bool _vertexInput)
   : m_logicalDevice(_logicalDevice)
 {
     // Programmable steps
@@ -60,11 +61,21 @@ Pipeline::Pipeline(const LogicalDevice& _logicalDevice,
     // Input assembler
     VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo{};
     vertexInputStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
-    vertexInputStateCreateInfo.pVertexBindingDescriptions = &vertexInputBindingDescription;
-    vertexInputStateCreateInfo.vertexAttributeDescriptionCount =
-      static_cast<uint32_t>(vertexInputAttributeDescriptions.size());
-    vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexInputAttributeDescriptions.data();
+    if(_vertexInput)
+    {
+        vertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
+        vertexInputStateCreateInfo.pVertexBindingDescriptions = &vertexInputBindingDescription;
+        vertexInputStateCreateInfo.vertexAttributeDescriptionCount =
+          static_cast<uint32_t>(vertexInputAttributeDescriptions.size());
+        vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexInputAttributeDescriptions.data();
+    }
+    else
+    {
+        vertexInputStateCreateInfo.vertexBindingDescriptionCount = 0;
+        vertexInputStateCreateInfo.pVertexBindingDescriptions = nullptr;
+        vertexInputStateCreateInfo.vertexAttributeDescriptionCount = 0;
+        vertexInputStateCreateInfo.pVertexAttributeDescriptions = nullptr;
+    }
 
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo{};
     inputAssemblyStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
