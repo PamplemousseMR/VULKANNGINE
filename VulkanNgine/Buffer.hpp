@@ -13,7 +13,7 @@ class Buffer
         glm::vec3 m_color;
     };
 
-    Buffer(const LogicalDevice& _logicalDevice, const std::vector<Buffer::Vertex>& _data);
+    Buffer(const LogicalDevice& _logicalDevice, VkBufferUsageFlags _usage, const std::vector<Buffer::Vertex>& _data);
 
     ~Buffer();
 

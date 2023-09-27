@@ -1,13 +1,13 @@
 #include "Buffer.hpp"
 
-Buffer::Buffer(const LogicalDevice& _logicalDevice, const std::vector<Buffer::Vertex>& _data)
+Buffer::Buffer(const LogicalDevice& _logicalDevice, VkBufferUsageFlags _usage, const std::vector<Buffer::Vertex>& _data)
   : m_logicalDevice(_logicalDevice)
   , m_data(_data)
 {
     VkBufferCreateInfo bufferCreateInfo{};
     bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferCreateInfo.size = sizeof(_data[0]) * _data.size();
-    bufferCreateInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    bufferCreateInfo.usage = _usage;
     bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
     if(vkCreateBuffer(_logicalDevice.get(), &bufferCreateInfo, nullptr, &m_buffer) != VK_SUCCESS)

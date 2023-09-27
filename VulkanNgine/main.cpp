@@ -80,9 +80,13 @@ int main()
     const std::vector<Buffer::Vertex> vertices = {
       {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}}, {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}}, {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
 
-    Buffer buffer(logicalDevice, vertices);
+    Buffer buffer(logicalDevice, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, vertices);
 
-    DeviceMemory deviceMemory(logicalDevice, *selectedDevice, buffer);
+    DeviceMemory deviceMemory(logicalDevice,
+                              *selectedDevice,
+                              buffer,
+                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+    deviceMemory.mapMemory();
 
     SwapChain swapChain(*selectedDevice, surface, logicalDevice);
 
