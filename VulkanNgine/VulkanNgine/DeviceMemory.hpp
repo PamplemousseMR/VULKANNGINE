@@ -16,7 +16,7 @@ class DeviceMemory
 
     DeviceMemory(const DeviceMemory&) = delete;
 
-    DeviceMemory(DeviceMemory&& _f) = delete;
+    DeviceMemory(DeviceMemory&& _d);
 
     DeviceMemory& operator=(const DeviceMemory&) = delete;
 

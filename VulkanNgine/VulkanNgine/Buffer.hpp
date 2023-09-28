@@ -19,7 +19,7 @@ class Buffer
 
     Buffer(const Buffer&) = delete;
 
-    Buffer(Buffer&& _f) = delete;
+    Buffer(Buffer&& _b);
 
     Buffer& operator=(const Buffer&) = delete;
 

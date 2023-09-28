@@ -18,4 +18,17 @@ Buffer::Buffer(const LogicalDevice& _logicalDevice, VkBufferUsageFlags _usage, V
     vkGetBufferMemoryRequirements(_logicalDevice.get(), m_buffer, &m_requirements);
 }
 
-Buffer::~Buffer() { vkDestroyBuffer(m_logicalDevice.get(), m_buffer, nullptr); }
+Buffer::~Buffer()
+{
+    if(m_buffer != VK_NULL_HANDLE)
+    {
+        vkDestroyBuffer(m_logicalDevice.get(), m_buffer, nullptr);
+    }
+}
+
+Buffer::Buffer(Buffer&& _b)
+  : m_logicalDevice(std::move(_b.m_logicalDevice))
+  , m_size(std::move(_b.m_size))
+  , m_buffer(std::exchange(_b.m_buffer, VK_NULL_HANDLE))
+  , m_requirements(std::move(_b.m_requirements))
+{}

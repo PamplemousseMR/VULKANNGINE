@@ -22,7 +22,13 @@ DeviceMemory::DeviceMemory(const LogicalDevice& _logicalDevice,
     vkBindBufferMemory(_logicalDevice.get(), _buffer.get(), m_deviceMemory, 0);
 }
 
-DeviceMemory::~DeviceMemory() { vkFreeMemory(m_logicalDevice.get(), m_deviceMemory, nullptr); }
+DeviceMemory::~DeviceMemory()
+{
+    if(m_deviceMemory != VK_NULL_HANDLE)
+    {
+        vkFreeMemory(m_logicalDevice.get(), m_deviceMemory, nullptr);
+    }
+}
 
 void DeviceMemory::mapMemory(const void* _data) const
 {
@@ -31,3 +37,9 @@ void DeviceMemory::mapMemory(const void* _data) const
     memcpy(data, _data, m_buffer.getSize());
     vkUnmapMemory(m_logicalDevice.get(), m_deviceMemory);
 }
+
+DeviceMemory::DeviceMemory(DeviceMemory&& _d)
+  : m_logicalDevice(std::move(_d.m_logicalDevice))
+  , m_buffer(std::move(_d.m_buffer))
+  , m_deviceMemory(std::exchange(_d.m_deviceMemory, VK_NULL_HANDLE))
+{}
