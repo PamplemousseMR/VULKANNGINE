@@ -8,6 +8,8 @@ set(VKNGINE_SRC
         VulkanNgine/Buffer.cpp
         VulkanNgine/CommandBuffers.cpp
         VulkanNgine/CommandPool.cpp
+        VulkanNgine/DescriptorPool.cpp
+        VulkanNgine/DescriptorSets.cpp
         VulkanNgine/DeviceMemory.cpp
         VulkanNgine/Fence.cpp
         VulkanNgine/FrameBuffer.cpp
@@ -26,6 +28,8 @@ set(VKNGINE_HEADER
         VulkanNgine/Buffer.hpp
         VulkanNgine/CommandBuffers.hpp
         VulkanNgine/CommandPool.hpp
+        VulkanNgine/DescriptorPool.hpp
+        VulkanNgine/DescriptorSets.hpp
         VulkanNgine/DeviceMemory.hpp
         VulkanNgine/Fence.hpp
         VulkanNgine/FrameBuffer.hpp
