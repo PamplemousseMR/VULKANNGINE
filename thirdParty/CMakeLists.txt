@@ -70,8 +70,16 @@ if(VKNGINE_BUILD_GLM)
             -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR> <SOURCE_DIR>
         INSTALL_COMMAND COMMAND cmake -E echo "Skipping install step.")
 
+    if(WIN32)
+        ExternalProject_Add_Step(glm glm_install
+                COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/glm/cmake/glm ${CMAKE_INSTALL_PREFIX}/lib/cmake/glm && ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_BINARY_DIR}/glm/glm ${CMAKE_INSTALL_PREFIX}/include/glm
+                DEPENDEES install
+            )
+    else()
         ExternalProject_Add_Step(glm glm_install
                 COMMAND cp -r ${CMAKE_CURRENT_BINARY_DIR}/glm/cmake/glm ${CMAKE_INSTALL_PREFIX}/lib/cmake && cp -r ${CMAKE_CURRENT_BINARY_DIR}/glm/glm ${CMAKE_INSTALL_PREFIX}/lib
                 DEPENDEES install
             )
+    endif()
+
 endif()

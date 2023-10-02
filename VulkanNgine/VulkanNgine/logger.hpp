@@ -6,7 +6,7 @@
 inline std::string fileName(const std::string& file)
 {
     std::filesystem::path path(file);
-    return path.stem();
+    return path.stem().string();
 }
 
 #define VKNGINE_LOG(I, T, X) std::I << "[" << fileName(__FILE__) << "] " << T << ": " << X << std::endl

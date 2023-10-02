@@ -49,7 +49,7 @@ add_library(${VKNGINE_LIB_NAME} STATIC ${VKNGINE_SRC} ${VKNGINE_HEADER})
 
 target_include_directories(${VKNGINE_LIB_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(${VKNGINE_LIB_NAME} PUBLIC glfw glm::glm Vulkan::Vulkan stdc++fs)
+target_link_libraries(${VKNGINE_LIB_NAME} PUBLIC glfw glm::glm Vulkan::Vulkan)
 
 target_compile_options(${VKNGINE_LIB_NAME} PRIVATE $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:
     -Wall
