@@ -167,7 +167,7 @@ int main()
         renderPassBeginInfo.renderArea.offset = {0, 0};
         renderPassBeginInfo.renderArea.extent = swapChain.getExtent();
 
-        VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
+        VkClearValue clearColor = {{0.0f, 0.0f, 0.0f, 1.0f}};
         renderPassBeginInfo.clearValueCount = 1;
         renderPassBeginInfo.pClearValues = &clearColor;
 

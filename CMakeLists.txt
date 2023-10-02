@@ -43,7 +43,8 @@ macro(vkngine_add_executable)
 
     target_compile_options(${arg_TARGET} 
     PRIVATE 
-    $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:
+
+    $<IF:$<NOT:$<CXX_COMPILER_ID:MSVC>>, 
         -Wall
         -Wextra
         -Wshadow
@@ -61,13 +62,18 @@ macro(vkngine_add_executable)
         -Wno-format-y2k
         -Werror
         -Wno-unused-parameter
-    $<$<NOT:$<BOOL:${APPLE}>>:
         -Wduplicated-cond
         -Wduplicated-branches
         -Wuseless-cast
-        -Wlogical-op>
-        
-        >)
+        -Wlogical-op,
+        /Wall
+        /WX
+        /wd4514
+        /wd4820
+        /wd4623
+        /wd4626
+        /wd5027
+        /wd5045>)
 
     foreach(source ${arg_SHADERS})
         add_custom_command(
