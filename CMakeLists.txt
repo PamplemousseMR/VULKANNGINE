@@ -42,38 +42,37 @@ macro(vkngine_add_executable)
     endif()
 
     target_compile_options(${arg_TARGET} 
-    PRIVATE 
-
-    $<IF:$<NOT:$<CXX_COMPILER_ID:MSVC>>, 
-        -Wall
-        -Wextra
-        -Wshadow
-        -Wnon-virtual-dtor
-        -Wold-style-cast
-        -Wcast-align
-        -Wunused
-        -Woverloaded-virtual
-        -Wpedantic
-        -Wconversion
-        -Wsign-conversion
-        -Wmisleading-indentation
-        -Wdouble-promotion
-        -Wformat=2
-        -Wno-format-y2k
-        -Werror
-        -Wno-unused-parameter
-        -Wduplicated-cond
-        -Wduplicated-branches
-        -Wuseless-cast
-        -Wlogical-op,
-        /Wall
-        /WX
-        /wd4514
-        /wd4820
-        /wd4623
-        /wd4626
-        /wd5027
-        /wd5045>)
+        PRIVATE 
+        $<IF:$<NOT:$<CXX_COMPILER_ID:MSVC>>, 
+            -Wall
+            -Wextra
+            -Wshadow
+            -Wnon-virtual-dtor
+            -Wold-style-cast
+            -Wcast-align
+            -Wunused
+            -Woverloaded-virtual
+            -Wpedantic
+            -Wconversion
+            -Wsign-conversion
+            -Wmisleading-indentation
+            -Wdouble-promotion
+            -Wformat=2
+            -Wno-format-y2k
+            -Werror
+            -Wno-unused-parameter
+            -Wduplicated-cond
+            -Wduplicated-branches
+            -Wuseless-cast
+            -Wlogical-op,
+            /Wall
+            /WX
+            /wd4514
+            /wd4820
+            /wd4623
+            /wd4626
+            /wd5027
+            /wd5045>)
 
     foreach(source ${arg_SHADERS})
         add_custom_command(
@@ -86,6 +85,54 @@ macro(vkngine_add_executable)
         )
         target_sources(${arg_TARGET} PRIVATE ${source}.bin)
     endforeach()
+endmacro()
+
+macro(vkngine_add_library)
+    set(options)
+    set(oneValueArgs TARGET)
+    set(multiValueArgs SOURCES HEADERS PUBLIC_LINKS)
+    cmake_parse_arguments(arg "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    add_library(${arg_TARGET} STATIC ${arg_SOURCES} ${arg_HEADERS})
+
+    target_include_directories(${arg_TARGET} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+    target_link_libraries(${arg_TARGET} PUBLIC ${arg_PUBLIC_LINKS})
+
+    target_compile_options(${arg_TARGET} 
+        PRIVATE 
+        $<IF:$<NOT:$<CXX_COMPILER_ID:MSVC>>, 
+            -Wall
+            -Wextra
+            -Wshadow
+            -Wnon-virtual-dtor
+            -Wold-style-cast
+            -Wcast-align
+            -Wunused
+            -Woverloaded-virtual
+            -Wpedantic
+            -Wconversion
+            -Wsign-conversion
+            -Wmisleading-indentation
+            -Wdouble-promotion
+            -Wformat=2
+            -Wno-format-y2k
+            -Werror
+            -Wno-unused-parameter
+            -Wduplicated-cond
+            -Wduplicated-branches
+            -Wuseless-cast
+            -Wlogical-op,
+            /Wall
+            /WX
+            /wd4514
+            /wd4820
+            /wd4623
+            /wd4626
+            /wd5027
+            /wd5045
+            /wd4191
+            /wd4061>)
 endmacro()
 
 #=======================================

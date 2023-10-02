@@ -45,32 +45,4 @@ set(VKNGINE_HEADER
         VulkanNgine/SwapChainImageViews.hpp
         VulkanNgine/Window.hpp)
 
-add_library(${VKNGINE_LIB_NAME} STATIC ${VKNGINE_SRC} ${VKNGINE_HEADER})
-
-target_include_directories(${VKNGINE_LIB_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-target_link_libraries(${VKNGINE_LIB_NAME} PUBLIC glfw glm::glm Vulkan::Vulkan)
-
-target_compile_options(${VKNGINE_LIB_NAME} PRIVATE $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:
-    -Wall
-    -Wextra
-    -Wshadow
-    -Wnon-virtual-dtor
-    -Wold-style-cast
-    -Wcast-align
-    -Wunused
-    -Woverloaded-virtual
-    -Wpedantic
-    -Wconversion
-    -Wsign-conversion
-    -Wmisleading-indentation
-    -Wdouble-promotion
-    -Wformat=2
-    -Wno-format-y2k
-    -Werror
-    -Wno-unused-parameter
-    $<$<NOT:$<BOOL:${APPLE}>>:
-    -Wduplicated-cond
-    -Wduplicated-branches
-    -Wuseless-cast
-    -Wlogical-op>>)
+vkngine_add_library(TARGET ${VKNGINE_LIB_NAME} SOURCES ${VKNGINE_SRC} HEADERS ${VKNGINE_HEADER} PUBLIC_LINKS glfw glm::glm Vulkan::Vulkan)

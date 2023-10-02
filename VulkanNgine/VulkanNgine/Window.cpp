@@ -30,7 +30,7 @@ Window::~Window()
     glfwTerminate();
 }
 
-bool Window::shouldClose() { return glfwWindowShouldClose(m_window); }
+bool Window::shouldClose() { return glfwWindowShouldClose(m_window) > 0; }
 
 void Window::poolEvent() { glfwPollEvents(); }
 
