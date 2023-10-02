@@ -4,32 +4,16 @@
 
 set(VKNGINE_APP_NAME StagingBuffer)
 
-add_executable(${VKNGINE_APP_NAME} main.cpp stagingBuffer.vert stagingBuffer.frag Pipeline.hpp Pipeline.cpp)
+set(VKNGINGE_SOURCES 
+    main.cpp
+    Pipeline.hpp 
+    Pipeline.cpp)
 
-target_link_libraries(${VKNGINE_APP_NAME} PRIVATE VKNgine)
+ set(VKNGINGE_SHADERS 
+    stagingBuffer.vert 
+    stagingBuffer.frag)
 
-target_compile_options(${VKNGINE_APP_NAME} PRIVATE $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:
-    -Wall
-    -Wextra
-    -Wshadow
-    -Wnon-virtual-dtor
-    -Wold-style-cast
-    -Wcast-align
-    -Wunused
-    -Woverloaded-virtual
-    -Wpedantic
-    -Wconversion
-    -Wsign-conversion
-    -Wmisleading-indentation
-    -Wdouble-promotion
-    -Wformat=2
-    -Wno-format-y2k
-    -Werror
-    -Wno-unused-parameter
-    $<$<NOT:$<BOOL:${APPLE}>>:
-    -Wduplicated-cond
-    -Wduplicated-branches
-    -Wuseless-cast
-    -Wlogical-op>>)
+ set(VKNGINGE_LINKS 
+    VKNgine)
 
-add_shader(${VKNGINE_APP_NAME} SOURCES stagingBuffer.vert stagingBuffer.frag)
+vkngine_add_executable(TARGET ${VKNGINE_APP_NAME} SOURCES ${VKNGINGE_SOURCES} SHADERS ${VKNGINGE_SHADERS} LINKS ${VKNGINGE_LINKS})
