@@ -14,7 +14,8 @@ set(VKNGINGE_SOURCES
     texture.frag)
 
  set(VKNGINGE_LINKS 
-    VKNgine)
+    VKNgine
+    glm::glm)
     
  set(VKNGINGE_RESOURCES
     texture.jpeg)

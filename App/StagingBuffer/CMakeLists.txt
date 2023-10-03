@@ -14,6 +14,7 @@ set(VKNGINGE_SOURCES
     stagingBuffer.frag)
 
  set(VKNGINGE_LINKS 
-    VKNgine)
+    VKNgine
+    glm::glm)
 
 vkngine_add_executable(TARGET ${VKNGINE_APP_NAME} SOURCES ${VKNGINGE_SOURCES} SHADERS ${VKNGINGE_SHADERS} LINKS ${VKNGINGE_LINKS})

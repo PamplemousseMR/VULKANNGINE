@@ -2,17 +2,9 @@
 
 #include "LogicalDevice.hpp"
 
-#include <glm/glm.hpp>
-
 class Buffer
 {
   public:
-    struct Vertex
-    {
-        glm::vec2 m_pos;
-        glm::vec3 m_color;
-    };
-
     Buffer(const LogicalDevice& _logicalDevice, VkBufferUsageFlags _usage, VkDeviceSize _size);
 
     ~Buffer();

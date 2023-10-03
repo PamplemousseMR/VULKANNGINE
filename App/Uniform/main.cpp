@@ -89,7 +89,7 @@ int main()
 
     LogicalDevice logicalDevice(*selectedDevice);
 
-    const std::vector<Buffer::Vertex> vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    const std::vector<Pipeline::Vertex> vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
                                                   {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
                                                   {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
                                                   {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}};
@@ -185,8 +185,12 @@ int main()
     Pipeline pipeline(
       logicalDevice, defaultVertShaderModule, defaultFragShaderModule, renderPass, swapChain.getExtent());
 
+    VkDescriptorPoolSize descriptorPoolSize{};
+    descriptorPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorPoolSize.descriptorCount = static_cast<uint32_t>(swapChainImageViews.get().size());
+
     DescriptorPool descriptorPool(
-      logicalDevice, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, static_cast<uint32_t>(swapChainImageViews.get().size()));
+      logicalDevice, {descriptorPoolSize}, static_cast<uint32_t>(swapChainImageViews.get().size()));
 
     DescriptorSets descriptorSets(logicalDevice,
                                   descriptorPool,

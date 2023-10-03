@@ -19,6 +19,9 @@
 #include <VulkanNgine/Window.hpp>
 #include <VulkanNgine/logger.hpp>
 #include <VulkanNgine/Texture.hpp>
+#include <VulkanNgine/Image.hpp>
+#include <VulkanNgine/ImageView.hpp>
+#include <VulkanNgine/Sampler.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -67,7 +70,7 @@ int main()
               swapChainAdequate = !details.m_formats.empty() && !details.m_presentModes.empty();
           }
 
-          return graphicQueueFamily != _device.getQueueFamilies().end() && swapChainAdequate;
+          return graphicQueueFamily != _device.getQueueFamilies().end() && swapChainAdequate && _device.hasSamplerAnisotropySupport();
       });
 
     if(selectedDevice == physicalDevices.end())
@@ -90,10 +93,10 @@ int main()
 
     LogicalDevice logicalDevice(*selectedDevice);
 
-    const std::vector<Buffer::Vertex> vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-                                                  {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-                                                  {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-                                                  {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}};
+    const std::vector<Pipeline::Vertex> vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                                                  {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+                                                  {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+                                                  {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}};
 
     const VkDeviceSize vertexBufferSize = sizeof(vertices[0]) * vertices.size();
 
@@ -112,15 +115,11 @@ int main()
                                          vertexStagingBuffer,
                                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-        vertexStagingMemory.mapMemory(vertices.data());
+        vertexStagingMemory.mapMemory(vertices.data(), vertexStagingBuffer.getSize());
 
         CommandBuffers transferCommandBuffers(logicalDevice, transferCommandPool, 1);
 
-        VkCommandBufferBeginInfo commandBufferBeginInfo{};
-        commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-        vkBeginCommandBuffer(transferCommandBuffers.get()[0], &commandBufferBeginInfo);
+        transferCommandBuffers.beginSingleTimeCommand(0);
 
         VkBufferCopy bufferCopy{};
         bufferCopy.srcOffset = 0;
@@ -128,15 +127,7 @@ int main()
         bufferCopy.size = vertexBufferSize;
         vkCmdCopyBuffer(transferCommandBuffers.get()[0], vertexStagingBuffer.get(), vertexBuffer.get(), 1, &bufferCopy);
 
-        vkEndCommandBuffer(transferCommandBuffers.get()[0]);
-
-        VkSubmitInfo submitInfo{};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &transferCommandBuffers.get()[0];
-
-        vkQueueSubmit(logicalDevice.getTransferQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(logicalDevice.getTransferQueue());
+        transferCommandBuffers.endSingleTimeCommand(0);
     }
 
     const std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
@@ -156,15 +147,11 @@ int main()
                                         indexStagingBuffer,
                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-        indexStagingMemory.mapMemory(indices.data());
+        indexStagingMemory.mapMemory(indices.data(), indexStagingBuffer.getSize());
 
         CommandBuffers transferCommandBuffers(logicalDevice, transferCommandPool, 1);
 
-        VkCommandBufferBeginInfo commandBufferBeginInfo{};
-        commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-        vkBeginCommandBuffer(transferCommandBuffers.get()[0], &commandBufferBeginInfo);
+        transferCommandBuffers.beginSingleTimeCommand(0);
 
         VkBufferCopy bufferCopy{};
         bufferCopy.srcOffset = 0;
@@ -172,15 +159,7 @@ int main()
         bufferCopy.size = indicesBufferSize;
         vkCmdCopyBuffer(transferCommandBuffers.get()[0], indexStagingBuffer.get(), indexBuffer.get(), 1, &bufferCopy);
 
-        vkEndCommandBuffer(transferCommandBuffers.get()[0]);
-
-        VkSubmitInfo submitInfo{};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &transferCommandBuffers.get()[0];
-
-        vkQueueSubmit(logicalDevice.getTransferQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(logicalDevice.getTransferQueue());
+        transferCommandBuffers.endSingleTimeCommand(0);
     }
 
     SwapChain swapChain(*selectedDevice, surface, logicalDevice);
@@ -202,6 +181,97 @@ int main()
                                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
     }
 
+    Texture texture("texture.jpeg");
+
+    Image textureImage(
+        logicalDevice, texture, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+
+    DeviceMemory textureMemory(logicalDevice, *selectedDevice, textureImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    {
+        Buffer textureStagingBuffer(logicalDevice, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, texture.getSize());
+
+        DeviceMemory textureStagingMemory(logicalDevice,
+            *selectedDevice,
+            textureStagingBuffer,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+        textureStagingMemory.mapMemory(texture.data(), textureStagingBuffer.getSize());
+
+        {
+            CommandBuffers transferCommandBuffers(logicalDevice, transferCommandPool, 1);
+
+            transferCommandBuffers.beginSingleTimeCommand(0);
+
+            VkImageMemoryBarrier imageMemoryBarrier{};
+            imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            imageMemoryBarrier.image = textureImage.get();
+            imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
+            imageMemoryBarrier.subresourceRange.levelCount = 1;
+            imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+            imageMemoryBarrier.subresourceRange.layerCount = 1;
+            imageMemoryBarrier.srcAccessMask = 0;
+            imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+            vkCmdPipelineBarrier(transferCommandBuffers.get()[0], VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+
+            transferCommandBuffers.endSingleTimeCommand(0);
+        }
+        {
+            CommandBuffers transferCommandBuffers(logicalDevice, transferCommandPool, 1);
+
+            transferCommandBuffers.beginSingleTimeCommand(0);
+
+            VkBufferImageCopy bufferImageCopy{};
+            bufferImageCopy.bufferOffset = 0;
+            bufferImageCopy.bufferRowLength = 0;
+            bufferImageCopy.bufferImageHeight = 0;
+            bufferImageCopy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            bufferImageCopy.imageSubresource.mipLevel = 0;
+            bufferImageCopy.imageSubresource.baseArrayLayer = 0;
+            bufferImageCopy.imageSubresource.layerCount = 1;
+            bufferImageCopy.imageOffset = { 0, 0, 0 };
+            bufferImageCopy.imageExtent = { static_cast<uint32_t>(texture.width()), static_cast<uint32_t>(texture.height()), 1 };
+
+            vkCmdCopyBufferToImage(transferCommandBuffers.get()[0], textureStagingBuffer.get(), textureImage.get(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &bufferImageCopy);
+
+            transferCommandBuffers.endSingleTimeCommand(0);
+        }
+        {
+            CommandBuffers transferCommandBuffers(logicalDevice, transferCommandPool, 1);
+
+            transferCommandBuffers.beginSingleTimeCommand(0);
+
+            VkImageMemoryBarrier imageMemoryBarrier{};
+            imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+            imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+            imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            imageMemoryBarrier.image = textureImage.get();
+            imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
+            imageMemoryBarrier.subresourceRange.levelCount = 1;
+            imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+            imageMemoryBarrier.subresourceRange.layerCount = 1;
+            imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+            imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+            vkCmdPipelineBarrier(transferCommandBuffers.get()[0], VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+
+            transferCommandBuffers.endSingleTimeCommand(0);
+        }
+    }
+
+    ImageView textureImageView(logicalDevice, textureImage);
+
+    Sampler sampler(logicalDevice);
+
     ShaderModule defaultVertShaderModule(logicalDevice, "texture.vert.bin");
     ShaderModule defaultFragShaderModule(logicalDevice, "texture.frag.bin");
 
@@ -210,8 +280,16 @@ int main()
     Pipeline pipeline(
       logicalDevice, defaultVertShaderModule, defaultFragShaderModule, renderPass, swapChain.getExtent());
 
+    VkDescriptorPoolSize uboDescriptorPoolSize{};
+    uboDescriptorPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    uboDescriptorPoolSize.descriptorCount = static_cast<uint32_t>(swapChainImageViews.get().size());
+
+    VkDescriptorPoolSize samplerDescriptorPoolSize{};
+    samplerDescriptorPoolSize.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    samplerDescriptorPoolSize.descriptorCount = static_cast<uint32_t>(swapChainImageViews.get().size());
+
     DescriptorPool descriptorPool(
-      logicalDevice, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, static_cast<uint32_t>(swapChainImageViews.get().size()));
+        logicalDevice, { uboDescriptorPoolSize, samplerDescriptorPoolSize }, static_cast<uint32_t>(swapChainImageViews.get().size()));
 
     DescriptorSets descriptorSets(logicalDevice,
                                   descriptorPool,
@@ -225,21 +303,36 @@ int main()
         descriptorBufferinfo.offset = 0;
         descriptorBufferinfo.range = sizeof(UniformBufferObject);
 
-        VkWriteDescriptorSet writeDescriptorSet{};
-        writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        writeDescriptorSet.dstSet = descriptorSets.get().at(i);
-        writeDescriptorSet.dstBinding = 0;
-        writeDescriptorSet.dstArrayElement = 0;
-        writeDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        writeDescriptorSet.descriptorCount = 1;
-        writeDescriptorSet.pBufferInfo = &descriptorBufferinfo;
-        writeDescriptorSet.pImageInfo = nullptr;
-        writeDescriptorSet.pTexelBufferView = nullptr;
+        VkWriteDescriptorSet writeBufferDescriptorSet{};
+        writeBufferDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeBufferDescriptorSet.dstSet = descriptorSets.get().at(i);
+        writeBufferDescriptorSet.dstBinding = 0;
+        writeBufferDescriptorSet.dstArrayElement = 0;
+        writeBufferDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        writeBufferDescriptorSet.descriptorCount = 1;
+        writeBufferDescriptorSet.pBufferInfo = &descriptorBufferinfo;
+        writeBufferDescriptorSet.pImageInfo = nullptr;
+        writeBufferDescriptorSet.pTexelBufferView = nullptr;
 
-        vkUpdateDescriptorSets(logicalDevice.get(), 1, &writeDescriptorSet, 0, nullptr);
+        VkDescriptorImageInfo descriptorImageinfo{};
+        descriptorImageinfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        descriptorImageinfo.imageView = textureImageView.get();
+        descriptorImageinfo.sampler = sampler.get();
+
+        VkWriteDescriptorSet writeImageDescriptorSet{};
+        writeImageDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeImageDescriptorSet.dstSet = descriptorSets.get().at(i);
+        writeImageDescriptorSet.dstBinding = 1;
+        writeImageDescriptorSet.dstArrayElement = 0;
+        writeImageDescriptorSet.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        writeImageDescriptorSet.descriptorCount = 1;
+        writeImageDescriptorSet.pBufferInfo = nullptr;
+        writeImageDescriptorSet.pImageInfo = &descriptorImageinfo;
+        writeImageDescriptorSet.pTexelBufferView = nullptr;
+
+        std::array<VkWriteDescriptorSet, 2> writeDescriptorSets{ writeBufferDescriptorSet, writeImageDescriptorSet };
+        vkUpdateDescriptorSets(logicalDevice.get(), static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
     }
-
-    Texture texture("texture.jpeg");
 
     std::vector<FrameBuffer> framebuffers;
     framebuffers.reserve(swapChainImageViews.get().size());
@@ -357,7 +450,7 @@ int main()
 
         imagesInFlight[imageIndex] = &(inFlightFences.at(currentFrame));
 
-        uniformDeviceMemories.at(imageIndex).mapMemory(&ubo);
+        uniformDeviceMemories.at(imageIndex).mapMemory(&ubo, uniformBuffers[imageIndex].getSize());
 
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

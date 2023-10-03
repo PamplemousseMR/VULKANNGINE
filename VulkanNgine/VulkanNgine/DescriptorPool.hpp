@@ -5,7 +5,7 @@
 class DescriptorPool
 {
   public:
-    DescriptorPool(const LogicalDevice& _logicalDevice, VkDescriptorType _type, uint32_t _count);
+    DescriptorPool(const LogicalDevice& _logicalDevice, std::vector<VkDescriptorPoolSize> _poolSizes, uint32_t _count);
 
     ~DescriptorPool();
 

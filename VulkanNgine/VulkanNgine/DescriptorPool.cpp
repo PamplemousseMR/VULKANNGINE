@@ -1,16 +1,12 @@
 #include "DescriptorPool.hpp"
 
-DescriptorPool::DescriptorPool(const LogicalDevice& _logicalDevice, VkDescriptorType _type, uint32_t _count)
+DescriptorPool::DescriptorPool(const LogicalDevice& _logicalDevice, std::vector<VkDescriptorPoolSize> _poolSizes, uint32_t _count)
   : m_logicalDevice(_logicalDevice)
 {
-    VkDescriptorPoolSize descriptorPoolSize{};
-    descriptorPoolSize.type = _type;
-    descriptorPoolSize.descriptorCount = _count;
-
     VkDescriptorPoolCreateInfo descriptorPoolCreateInfo{};
     descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    descriptorPoolCreateInfo.poolSizeCount = 1;
-    descriptorPoolCreateInfo.pPoolSizes = &descriptorPoolSize;
+    descriptorPoolCreateInfo.poolSizeCount = static_cast<uint32_t>(_poolSizes.size());;
+    descriptorPoolCreateInfo.pPoolSizes = _poolSizes.data();
     descriptorPoolCreateInfo.maxSets = _count;
     descriptorPoolCreateInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 #include <VulkanNgine/LogicalDevice.hpp>
 #include <VulkanNgine/RenderPass.hpp>
 #include <VulkanNgine/ShaderModule.hpp>
@@ -7,7 +9,14 @@
 
 class Pipeline
 {
-  public:
+public:
+    struct Vertex
+    {
+        glm::vec2 m_pos;
+        glm::vec3 m_color;
+        glm::vec2 m_textCoord;
+    };
+
     Pipeline(const LogicalDevice& _logicalDevice,
              const ShaderModule& _vertexShaderModule,
              const ShaderModule& _fragmentShaderModule,

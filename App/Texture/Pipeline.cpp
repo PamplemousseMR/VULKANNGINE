@@ -27,17 +27,25 @@ Pipeline::Pipeline(const LogicalDevice& _logicalDevice,
                                                                fragPipelineShaderStageCreateInfo};
 
     // Uniforms
-    VkDescriptorSetLayoutBinding descriptorSetLayoutBinding{};
-    descriptorSetLayoutBinding.binding = 0;
-    descriptorSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    descriptorSetLayoutBinding.descriptorCount = 1;
-    descriptorSetLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
+    VkDescriptorSetLayoutBinding uboSetLayoutBinding{};
+    uboSetLayoutBinding.binding = 0;
+    uboSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    uboSetLayoutBinding.descriptorCount = 1;
+    uboSetLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    uboSetLayoutBinding.pImmutableSamplers = nullptr;
 
+    VkDescriptorSetLayoutBinding samplerSetLayoutBinding{};
+    samplerSetLayoutBinding.binding = 1;
+    samplerSetLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    samplerSetLayoutBinding.descriptorCount = 1;
+    samplerSetLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    samplerSetLayoutBinding.pImmutableSamplers = nullptr;
+
+    std::array<VkDescriptorSetLayoutBinding, 2> descriptorSetLayoutBinding = { uboSetLayoutBinding, samplerSetLayoutBinding};
     VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
     descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    descriptorSetLayoutCreateInfo.bindingCount = 1;
-    descriptorSetLayoutCreateInfo.pBindings = &descriptorSetLayoutBinding;
+    descriptorSetLayoutCreateInfo.bindingCount = static_cast<uint32_t>(descriptorSetLayoutBinding.size());
+    descriptorSetLayoutCreateInfo.pBindings = descriptorSetLayoutBinding.data();
 
     if(vkCreateDescriptorSetLayout(
          _logicalDevice.get(), &descriptorSetLayoutCreateInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS)
@@ -60,19 +68,24 @@ Pipeline::Pipeline(const LogicalDevice& _logicalDevice,
     // Fixed steps
     VkVertexInputBindingDescription vertexInputBindingDescription{};
     vertexInputBindingDescription.binding = 0;
-    vertexInputBindingDescription.stride = sizeof(Buffer::Vertex);
+    vertexInputBindingDescription.stride = sizeof(Vertex);
     vertexInputBindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-    std::array<VkVertexInputAttributeDescription, 2> vertexInputAttributeDescriptions{};
+    std::array<VkVertexInputAttributeDescription, 3> vertexInputAttributeDescriptions{};
     vertexInputAttributeDescriptions[0].binding = 0;
     vertexInputAttributeDescriptions[0].location = 0;
     vertexInputAttributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-    vertexInputAttributeDescriptions[0].offset = offsetof(Buffer::Vertex, m_pos);
+    vertexInputAttributeDescriptions[0].offset = offsetof(Vertex, m_pos);
 
     vertexInputAttributeDescriptions[1].binding = 0;
     vertexInputAttributeDescriptions[1].location = 1;
     vertexInputAttributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-    vertexInputAttributeDescriptions[1].offset = offsetof(Buffer::Vertex, m_color);
+    vertexInputAttributeDescriptions[1].offset = offsetof(Vertex, m_color);
+
+    vertexInputAttributeDescriptions[2].binding = 0;
+    vertexInputAttributeDescriptions[2].location = 2;
+    vertexInputAttributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+    vertexInputAttributeDescriptions[2].offset = offsetof(Vertex, m_textCoord);
 
     VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo{};
     vertexInputStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;

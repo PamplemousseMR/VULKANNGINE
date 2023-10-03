@@ -55,7 +55,6 @@ set(VKNGINE_HEADER
 
 set(VKNGINE_PUBLIC_LINKS
         glfw
-        glm::glm
         Vulkan::Vulkan)
 
 set(VKNGINE_PRIVATE_LINKS
