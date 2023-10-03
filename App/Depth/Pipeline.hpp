@@ -12,7 +12,7 @@ class Pipeline
 public:
     struct Vertex
     {
-        glm::vec2 m_pos;
+        glm::vec3 m_pos;
         glm::vec3 m_color;
         glm::vec2 m_textCoord;
     };
