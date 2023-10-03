@@ -18,6 +18,7 @@
 #include <VulkanNgine/SwapChainImageViews.hpp>
 #include <VulkanNgine/Window.hpp>
 #include <VulkanNgine/logger.hpp>
+#include <VulkanNgine/Texture.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -237,6 +238,8 @@ int main()
 
         vkUpdateDescriptorSets(logicalDevice.get(), 1, &writeDescriptorSet, 0, nullptr);
     }
+
+    Texture texture("texture.jpeg");
 
     std::vector<FrameBuffer> framebuffers;
     framebuffers.reserve(swapChainImageViews.get().size());

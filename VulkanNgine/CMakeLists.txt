@@ -56,7 +56,7 @@ set(VKNGINE_PRIVATE_LINKS
         stb)
 
 vkngine_add_library(TARGET ${VKNGINE_LIB_NAME}  
-                    TYPE STATIC 
+                    WARNING_AS_ERROR
                     SOURCES ${VKNGINE_SRC} 
                     HEADERS ${VKNGINE_HEADER} 
                     PUBLIC_LINKS ${VKNGINE_PUBLIC_LINKS} 
