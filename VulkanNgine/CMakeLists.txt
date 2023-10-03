@@ -22,6 +22,7 @@ set(VKNGINE_SRC
         VulkanNgine/Surface.cpp
         VulkanNgine/SwapChain.cpp
         VulkanNgine/SwapChainImageViews.cpp
+        VulkanNgine/Texture.cpp
         VulkanNgine/Window.cpp)
 
 set(VKNGINE_HEADER
@@ -43,6 +44,7 @@ set(VKNGINE_HEADER
         VulkanNgine/Surface.hpp
         VulkanNgine/SwapChain.hpp
         VulkanNgine/SwapChainImageViews.hpp
+        VulkanNgine/Texture.hpp
         VulkanNgine/Window.hpp)
 
 set(VKNGINE_PUBLIC_LINKS
