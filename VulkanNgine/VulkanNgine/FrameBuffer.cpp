@@ -2,17 +2,15 @@
 
 FrameBuffer::FrameBuffer(const LogicalDevice& _logicalDevice,
                          const RenderPass& _renderPass,
-                         VkImageView _imageView,
+                            std::vector<VkImageView> _imageViews,
                          VkExtent2D _size)
   : m_logicalDevice(_logicalDevice)
 {
-    VkImageView imageViews[] = {_imageView};
-
     VkFramebufferCreateInfo framebufferCreateInfo{};
     framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
     framebufferCreateInfo.renderPass = _renderPass.get();
-    framebufferCreateInfo.attachmentCount = 1;
-    framebufferCreateInfo.pAttachments = imageViews;
+    framebufferCreateInfo.attachmentCount = static_cast<uint32_t>(_imageViews.size());;
+    framebufferCreateInfo.pAttachments = _imageViews.data();
     framebufferCreateInfo.width = _size.width;
     framebufferCreateInfo.height = _size.height;
     framebufferCreateInfo.layers = 1;

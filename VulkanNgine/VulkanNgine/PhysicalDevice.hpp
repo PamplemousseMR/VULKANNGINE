@@ -51,6 +51,8 @@ class PhysicalDevice
 
     uint32_t findMemoryType(uint32_t _typeFilter, VkMemoryPropertyFlags _properties) const;
 
+    VkFormat findSupportedFormat(const std::vector<VkFormat>& _candidates, VkImageTiling _tiling, VkFormatFeatureFlags _features) const;
+
   private:
     PhysicalDevice(VkPhysicalDevice _physicalDevice,
                    const std::string& _name,

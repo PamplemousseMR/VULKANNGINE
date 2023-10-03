@@ -167,6 +167,17 @@ Pipeline::Pipeline(const LogicalDevice& _logicalDevice,
     colorBlendStateCreateInfo.blendConstants[2] = 0.0f;
     colorBlendStateCreateInfo.blendConstants[3] = 0.0f;
 
+    // Depth
+    VkPipelineDepthStencilStateCreateInfo depthStencilStateCreateInfo{};
+    depthStencilStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+    depthStencilStateCreateInfo.depthTestEnable = VK_TRUE;
+    depthStencilStateCreateInfo.depthWriteEnable = VK_TRUE;
+    depthStencilStateCreateInfo.depthCompareOp = VK_COMPARE_OP_LESS;
+    depthStencilStateCreateInfo.depthBoundsTestEnable = VK_FALSE;
+    depthStencilStateCreateInfo.minDepthBounds = 0.0f;
+    depthStencilStateCreateInfo.maxDepthBounds = 1.0f;
+    depthStencilStateCreateInfo.stencilTestEnable = VK_FALSE;
+
     // Pipeline
     VkGraphicsPipelineCreateInfo graphicsPipelineCreateInfo{};
     graphicsPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -179,7 +190,7 @@ Pipeline::Pipeline(const LogicalDevice& _logicalDevice,
     graphicsPipelineCreateInfo.pViewportState = &viewportStateCreateInfo;
     graphicsPipelineCreateInfo.pRasterizationState = &rasterizationStateCreateInfo;
     graphicsPipelineCreateInfo.pMultisampleState = &multisampleStateCreateInfo;
-    graphicsPipelineCreateInfo.pDepthStencilState = nullptr;
+    graphicsPipelineCreateInfo.pDepthStencilState = &depthStencilStateCreateInfo;
     graphicsPipelineCreateInfo.pColorBlendState = &colorBlendStateCreateInfo;
     graphicsPipelineCreateInfo.pDynamicState = nullptr;
 

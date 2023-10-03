@@ -129,7 +129,8 @@ int main()
 
     for(size_t i = 0; i < swapChainImageViews.get().size(); ++i)
     {
-        framebuffers.emplace_back(logicalDevice, renderPass, swapChainImageViews.get()[i], swapChain.getExtent());
+        std::vector<VkImageView> attachments{ swapChainImageViews.get()[i] };
+        framebuffers.emplace_back(logicalDevice, renderPass, attachments, swapChain.getExtent());
     }
 
     CommandPool graphicCommandPool(logicalDevice, VK_QUEUE_GRAPHICS_BIT);

@@ -8,6 +8,8 @@ class RenderPass
   public:
     RenderPass(const LogicalDevice& _logicalDevice, VkFormat _format);
 
+    RenderPass(const LogicalDevice& _logicalDevice, VkFormat _colorFormat, VkFormat _depthFormat);
+
     ~RenderPass();
 
     RenderPass(const RenderPass&) = delete;

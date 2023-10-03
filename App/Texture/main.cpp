@@ -184,7 +184,7 @@ int main()
     Texture texture("texture.jpeg");
 
     Image textureImage(
-        logicalDevice, texture, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+        logicalDevice, static_cast<uint32_t>(texture.width()), static_cast<uint32_t>(texture.height()), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
 
     DeviceMemory textureMemory(logicalDevice, *selectedDevice, textureImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
@@ -268,7 +268,7 @@ int main()
         }
     }
 
-    ImageView textureImageView(logicalDevice, textureImage);
+    ImageView textureImageView(logicalDevice, textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 
     Sampler sampler(logicalDevice);
 
@@ -339,7 +339,8 @@ int main()
 
     for(size_t i = 0; i < swapChainImageViews.get().size(); ++i)
     {
-        framebuffers.emplace_back(logicalDevice, renderPass, swapChainImageViews.get()[i], swapChain.getExtent());
+        std::vector<VkImageView> attachments{ swapChainImageViews.get()[i] };
+        framebuffers.emplace_back(logicalDevice, renderPass, attachments, swapChain.getExtent());
     }
 
     CommandPool graphicCommandPool(logicalDevice, VK_QUEUE_GRAPHICS_BIT);

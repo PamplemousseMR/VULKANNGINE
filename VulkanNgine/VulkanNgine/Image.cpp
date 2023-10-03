@@ -1,18 +1,18 @@
 #include "Image.hpp"
 
-Image::Image(const LogicalDevice& _logicalDevice, const Texture& _texture, VkImageUsageFlags _usage)
+Image::Image(const LogicalDevice& _logicalDevice, uint32_t _width, uint32_t _height, VkFormat _format, VkImageTiling _tiling, VkImageUsageFlags _usage)
   : m_logicalDevice(_logicalDevice)
 {
     VkImageCreateInfo imageCreateInfo{};
     imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
-    imageCreateInfo.extent.width = static_cast<uint32_t>(_texture.width());
-    imageCreateInfo.extent.height = static_cast<uint32_t>(_texture.height());
+    imageCreateInfo.extent.width = _width;
+    imageCreateInfo.extent.height = _height;
     imageCreateInfo.extent.depth = 1;
     imageCreateInfo.mipLevels = 1;
     imageCreateInfo.arrayLayers = 1;
-    imageCreateInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
-    imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    imageCreateInfo.format = _format;
+    imageCreateInfo.tiling = _tiling;
     imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     imageCreateInfo.usage = _usage;
     imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;

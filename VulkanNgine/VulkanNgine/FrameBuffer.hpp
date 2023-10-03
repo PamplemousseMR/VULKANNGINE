@@ -12,7 +12,7 @@ class FrameBuffer
   public:
     FrameBuffer(const LogicalDevice& _logicalDevice,
                 const RenderPass& _renderPass,
-                VkImageView _imageView,
+                std::vector<VkImageView> _imageViews,
                 VkExtent2D _size);
 
     ~FrameBuffer();

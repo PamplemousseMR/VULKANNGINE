@@ -23,6 +23,7 @@
 #include <VulkanNgine/ImageView.hpp>
 #include <VulkanNgine/Sampler.hpp>
 
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <chrono>
@@ -96,7 +97,12 @@ int main()
     const std::vector<Pipeline::Vertex> vertices = {{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
                                                   {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
                                                   {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-                                                  {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}};
+                                                  {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+    
+                                                  {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                                                  {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+                                                  {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+                                                  {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}} };
 
     const VkDeviceSize vertexBufferSize = sizeof(vertices[0]) * vertices.size();
 
@@ -130,7 +136,7 @@ int main()
         transferCommandBuffers.endSingleTimeCommand(0);
     }
 
-    const std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
+    const std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4};
 
     const VkDeviceSize indicesBufferSize = sizeof(vertices[0]) * vertices.size();
 
@@ -184,7 +190,7 @@ int main()
     Texture texture("texture.jpeg");
 
     Image textureImage(
-        logicalDevice, texture, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+        logicalDevice, static_cast<uint32_t>(texture.width()), static_cast<uint32_t>(texture.height()), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
 
     DeviceMemory textureMemory(logicalDevice, *selectedDevice, textureImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
@@ -268,14 +274,23 @@ int main()
         }
     }
 
-    ImageView textureImageView(logicalDevice, textureImage);
+    ImageView textureImageView(logicalDevice, textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 
     Sampler sampler(logicalDevice);
+
+    const VkFormat depthFormat = selectedDevice->findSupportedFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+        VK_IMAGE_TILING_OPTIMAL,
+        VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+    Image depthImage(logicalDevice, swapChain.getExtent().width, swapChain.getExtent().height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+
+    DeviceMemory depthMemory(logicalDevice, *selectedDevice, depthImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    ImageView depthImageView(logicalDevice, depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 
     ShaderModule defaultVertShaderModule(logicalDevice, "depth.vert.bin");
     ShaderModule defaultFragShaderModule(logicalDevice, "depth.frag.bin");
 
-    RenderPass renderPass(logicalDevice, swapChain.getFormat().format);
+    RenderPass renderPass(logicalDevice, swapChain.getFormat().format, depthFormat);
 
     Pipeline pipeline(
       logicalDevice, defaultVertShaderModule, defaultFragShaderModule, renderPass, swapChain.getExtent());
@@ -339,7 +354,8 @@ int main()
 
     for(size_t i = 0; i < swapChainImageViews.get().size(); ++i)
     {
-        framebuffers.emplace_back(logicalDevice, renderPass, swapChainImageViews.get()[i], swapChain.getExtent());
+        std::vector<VkImageView> attachments{ swapChainImageViews.get()[i], depthImageView.get() };
+        framebuffers.emplace_back(logicalDevice, renderPass, attachments, swapChain.getExtent());
     }
 
     CommandPool graphicCommandPool(logicalDevice, VK_QUEUE_GRAPHICS_BIT);
@@ -365,9 +381,12 @@ int main()
         renderPassBeginInfo.renderArea.offset = {0, 0};
         renderPassBeginInfo.renderArea.extent = swapChain.getExtent();
 
-        VkClearValue clearColor = {{0.0f, 0.0f, 0.0f, 1.0f}};
-        renderPassBeginInfo.clearValueCount = 1;
-        renderPassBeginInfo.pClearValues = &clearColor;
+        std::array<VkClearValue, 2> clearValues;
+        clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
+        clearValues[1].depthStencil = { 1.0f, 0 };
+
+        renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+        renderPassBeginInfo.pClearValues = clearValues.data();
 
         vkCmdBeginRenderPass(graphicCommandBuffers.get()[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -388,7 +407,7 @@ int main()
                                 0,
                                 nullptr);
 
-        vkCmdDrawIndexed(graphicCommandBuffers.get()[i], 6, 1, 0, 0, 0);
+        vkCmdDrawIndexed(graphicCommandBuffers.get()[i], 12, 1, 0, 0, 0);
 
         vkCmdEndRenderPass(graphicCommandBuffers.get()[i]);
 

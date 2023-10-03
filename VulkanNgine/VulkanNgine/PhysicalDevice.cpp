@@ -183,3 +183,21 @@ uint32_t PhysicalDevice::findMemoryType(uint32_t _typeFilter, VkMemoryPropertyFl
 
     throw std::runtime_error("Failed to find required memory type");
 }
+
+VkFormat PhysicalDevice::findSupportedFormat(const std::vector<VkFormat>& _candidates, VkImageTiling _tiling, VkFormatFeatureFlags _features) const {
+    for (VkFormat format : _candidates) {
+        VkFormatProperties props;
+        vkGetPhysicalDeviceFormatProperties(m_physicalDevice, format, &props);
+
+        if (_tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & _features) == _features) 
+        {
+            return format;
+        }
+        else if (_tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & _features) == _features) 
+        {
+            return format;
+        }
+    }
+
+    throw std::runtime_error("Échec pour trouver un format supporté !");
+}

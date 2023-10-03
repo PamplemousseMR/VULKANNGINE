@@ -6,7 +6,7 @@
 class ImageView
 {
   public:
-    ImageView(const LogicalDevice& _logicalDevice, const Image& _image);
+    ImageView(const LogicalDevice& _logicalDevice, const Image& _image, VkFormat _format, VkImageAspectFlags _aspectFlags);
 
     ~ImageView();
 

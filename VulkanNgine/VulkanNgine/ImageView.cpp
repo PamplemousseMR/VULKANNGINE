@@ -1,6 +1,6 @@
 #include "ImageView.hpp"
 
-ImageView::ImageView(const LogicalDevice& _logicalDevice, const Image& _image)
+ImageView::ImageView(const LogicalDevice& _logicalDevice, const Image& _image, VkFormat _format, VkImageAspectFlags _aspectFlags)
   : m_logicalDevice(_logicalDevice)
 
 {
@@ -8,8 +8,8 @@ ImageView::ImageView(const LogicalDevice& _logicalDevice, const Image& _image)
 	imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 	imageViewCreateInfo.image = _image.get();
 	imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-	imageViewCreateInfo.format = VK_FORMAT_R8G8B8A8_SRGB;
-	imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	imageViewCreateInfo.format = _format;
+	imageViewCreateInfo.subresourceRange.aspectMask = _aspectFlags;
 	imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
 	imageViewCreateInfo.subresourceRange.levelCount = 1;
 	imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
