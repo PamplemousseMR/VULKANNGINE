@@ -1,6 +1,6 @@
 #include "ImageView.hpp"
 
-ImageView::ImageView(const LogicalDevice& _logicalDevice, const Image& _image, VkFormat _format, VkImageAspectFlags _aspectFlags)
+ImageView::ImageView(const LogicalDevice& _logicalDevice, const Image& _image, uint32_t _level, VkFormat _format, VkImageAspectFlags _aspectFlags)
   : m_logicalDevice(_logicalDevice)
 
 {
@@ -11,7 +11,7 @@ ImageView::ImageView(const LogicalDevice& _logicalDevice, const Image& _image, V
 	imageViewCreateInfo.format = _format;
 	imageViewCreateInfo.subresourceRange.aspectMask = _aspectFlags;
 	imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
-	imageViewCreateInfo.subresourceRange.levelCount = 1;
+	imageViewCreateInfo.subresourceRange.levelCount = _level;
 	imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
 	imageViewCreateInfo.subresourceRange.layerCount = 1;
 

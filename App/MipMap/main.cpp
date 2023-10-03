@@ -23,6 +23,7 @@
 #include <VulkanNgine/ImageView.hpp>
 #include <VulkanNgine/Sampler.hpp>
 
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <chrono>
@@ -40,7 +41,7 @@ struct UniformBufferObject
 
 int main()
 {
-    Window window("Texture");
+    Window window("Mipmap");
 
     Instance instance(window);
 
@@ -93,10 +94,15 @@ int main()
 
     LogicalDevice logicalDevice(*selectedDevice);
 
-    const std::vector<Pipeline::Vertex> vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-                                                  {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-                                                  {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-                                                  {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}};
+    const std::vector<Pipeline::Vertex> vertices = {{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                                                  {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+                                                  {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+                                                  {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+    
+                                                  {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+                                                  {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+                                                  {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+                                                  {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}} };
 
     const VkDeviceSize vertexBufferSize = sizeof(vertices[0]) * vertices.size();
 
@@ -130,7 +136,7 @@ int main()
         transferCommandBuffers.endSingleTimeCommand(0);
     }
 
-    const std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
+    const std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4};
 
     const VkDeviceSize indicesBufferSize = sizeof(vertices[0]) * vertices.size();
 
@@ -184,7 +190,7 @@ int main()
     Texture texture("texture.jpeg");
 
     Image textureImage(
-        logicalDevice, static_cast<uint32_t>(texture.width()), static_cast<uint32_t>(texture.height()), 1, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+        logicalDevice, static_cast<uint32_t>(texture.width()), static_cast<uint32_t>(texture.height()), static_cast<uint32_t>(texture.level()), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
 
     DeviceMemory textureMemory(logicalDevice, *selectedDevice, textureImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
@@ -212,7 +218,7 @@ int main()
             imageMemoryBarrier.image = textureImage.get();
             imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
             imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
-            imageMemoryBarrier.subresourceRange.levelCount = 1;
+            imageMemoryBarrier.subresourceRange.levelCount = static_cast<uint32_t>(texture.level());
             imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
             imageMemoryBarrier.subresourceRange.layerCount = 1;
             imageMemoryBarrier.srcAccessMask = 0;
@@ -247,6 +253,69 @@ int main()
 
             transferCommandBuffers.beginSingleTimeCommand(0);
 
+            int32_t mipWidth = texture.width();
+            int32_t mipHeight = texture.height();
+
+            for (uint32_t i = 1; i < static_cast<uint32_t>(texture.level()); ++i) {
+                VkImageMemoryBarrier imageMemoryBarrier{};
+                imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+                imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                imageMemoryBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                imageMemoryBarrier.image = textureImage.get();
+                imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                imageMemoryBarrier.subresourceRange.baseMipLevel = i-1;
+                imageMemoryBarrier.subresourceRange.levelCount = 1;
+                imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
+                imageMemoryBarrier.subresourceRange.layerCount = 1;
+                imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+                vkCmdPipelineBarrier(transferCommandBuffers.get()[0], VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+
+
+                VkImageBlit imageBlit{};
+                imageBlit.srcOffsets[0] = { 0, 0, 0 };
+                imageBlit.srcOffsets[1] = { mipWidth, mipHeight, 1 };
+                imageBlit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                imageBlit.srcSubresource.mipLevel = i - 1;
+                imageBlit.srcSubresource.baseArrayLayer = 0;
+                imageBlit.srcSubresource.layerCount = 1;
+                imageBlit.dstOffsets[0] = { 0, 0, 0 };
+                imageBlit.dstOffsets[1] = { mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1 };
+                imageBlit.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                imageBlit.dstSubresource.mipLevel = i;
+                imageBlit.dstSubresource.baseArrayLayer = 0;
+                imageBlit.dstSubresource.layerCount = 1;
+
+                vkCmdBlitImage(transferCommandBuffers.get()[0], textureImage.get(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, textureImage.get(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageBlit, VK_FILTER_LINEAR);
+
+                imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+                imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+                vkCmdPipelineBarrier(transferCommandBuffers.get()[0], VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageMemoryBarrier);
+
+                if(mipWidth > 1)
+                {
+                    mipWidth /= 2;
+                }
+
+                if(mipHeight > 1)
+                {
+                    mipHeight /= 2;
+                }
+            }
+
+            transferCommandBuffers.endSingleTimeCommand(0);
+        }
+        {
+            CommandBuffers transferCommandBuffers(logicalDevice, transferCommandPool, 1);
+
+            transferCommandBuffers.beginSingleTimeCommand(0);
+
             VkImageMemoryBarrier imageMemoryBarrier{};
             imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
             imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
@@ -255,7 +324,7 @@ int main()
             imageMemoryBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
             imageMemoryBarrier.image = textureImage.get();
             imageMemoryBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            imageMemoryBarrier.subresourceRange.baseMipLevel = 0;
+            imageMemoryBarrier.subresourceRange.baseMipLevel = static_cast<uint32_t>(texture.level()) - 1;
             imageMemoryBarrier.subresourceRange.levelCount = 1;
             imageMemoryBarrier.subresourceRange.baseArrayLayer = 0;
             imageMemoryBarrier.subresourceRange.layerCount = 1;
@@ -268,14 +337,23 @@ int main()
         }
     }
 
-    ImageView textureImageView(logicalDevice, textureImage, 1, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+    ImageView textureImageView(logicalDevice, textureImage, static_cast<uint32_t>(texture.level()), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 
-    Sampler sampler(logicalDevice, 1);
+    Sampler sampler(logicalDevice, static_cast<uint32_t>(texture.level()));
 
-    ShaderModule defaultVertShaderModule(logicalDevice, "texture.vert.bin");
-    ShaderModule defaultFragShaderModule(logicalDevice, "texture.frag.bin");
+    const VkFormat depthFormat = selectedDevice->findSupportedFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+        VK_IMAGE_TILING_OPTIMAL,
+        VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+    Image depthImage(logicalDevice, swapChain.getExtent().width, swapChain.getExtent().height, 1, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
 
-    RenderPass renderPass(logicalDevice, swapChain.getFormat().format);
+    DeviceMemory depthMemory(logicalDevice, *selectedDevice, depthImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    ImageView depthImageView(logicalDevice, depthImage, 1, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+
+    ShaderModule defaultVertShaderModule(logicalDevice, "mipmap.vert.bin");
+    ShaderModule defaultFragShaderModule(logicalDevice, "mipmap.frag.bin");
+
+    RenderPass renderPass(logicalDevice, swapChain.getFormat().format, depthFormat);
 
     Pipeline pipeline(
       logicalDevice, defaultVertShaderModule, defaultFragShaderModule, renderPass, swapChain.getExtent());
@@ -339,7 +417,7 @@ int main()
 
     for(size_t i = 0; i < swapChainImageViews.get().size(); ++i)
     {
-        std::vector<VkImageView> attachments{ swapChainImageViews.get()[i] };
+        std::vector<VkImageView> attachments{ swapChainImageViews.get()[i], depthImageView.get() };
         framebuffers.emplace_back(logicalDevice, renderPass, attachments, swapChain.getExtent());
     }
 
@@ -366,9 +444,12 @@ int main()
         renderPassBeginInfo.renderArea.offset = {0, 0};
         renderPassBeginInfo.renderArea.extent = swapChain.getExtent();
 
-        VkClearValue clearColor = {{0.0f, 0.0f, 0.0f, 1.0f}};
-        renderPassBeginInfo.clearValueCount = 1;
-        renderPassBeginInfo.pClearValues = &clearColor;
+        std::array<VkClearValue, 2> clearValues;
+        clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
+        clearValues[1].depthStencil = { 1.0f, 0 };
+
+        renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+        renderPassBeginInfo.pClearValues = clearValues.data();
 
         vkCmdBeginRenderPass(graphicCommandBuffers.get()[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -389,7 +470,7 @@ int main()
                                 0,
                                 nullptr);
 
-        vkCmdDrawIndexed(graphicCommandBuffers.get()[i], 6, 1, 0, 0, 0);
+        vkCmdDrawIndexed(graphicCommandBuffers.get()[i], 12, 1, 0, 0, 0);
 
         vkCmdEndRenderPass(graphicCommandBuffers.get()[i]);
 

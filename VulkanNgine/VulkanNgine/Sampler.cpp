@@ -1,6 +1,6 @@
 #include "Sampler.hpp"
 
-Sampler::Sampler(const LogicalDevice& _logicalDevice)
+Sampler::Sampler(const LogicalDevice& _logicalDevice, uint32_t _levels)
   : m_logicalDevice(_logicalDevice)
 
 {
@@ -20,7 +20,7 @@ Sampler::Sampler(const LogicalDevice& _logicalDevice)
 	samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 	samplerCreateInfo.mipLodBias = 0.0f;
 	samplerCreateInfo.minLod = 0.0f;
-	samplerCreateInfo.maxLod = 0.0f;
+	samplerCreateInfo.maxLod = static_cast<float>(_levels);
 
 	if (vkCreateSampler(_logicalDevice.get(), &samplerCreateInfo, nullptr, &m_sampler) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create the sampler");

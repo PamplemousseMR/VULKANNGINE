@@ -190,7 +190,7 @@ int main()
     Texture texture("texture.jpeg");
 
     Image textureImage(
-        logicalDevice, static_cast<uint32_t>(texture.width()), static_cast<uint32_t>(texture.height()), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+        logicalDevice, static_cast<uint32_t>(texture.width()), static_cast<uint32_t>(texture.height()), 1, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
 
     DeviceMemory textureMemory(logicalDevice, *selectedDevice, textureImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
@@ -274,18 +274,18 @@ int main()
         }
     }
 
-    ImageView textureImageView(logicalDevice, textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+    ImageView textureImageView(logicalDevice, textureImage, 1, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 
-    Sampler sampler(logicalDevice);
+    Sampler sampler(logicalDevice, 1);
 
     const VkFormat depthFormat = selectedDevice->findSupportedFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
         VK_IMAGE_TILING_OPTIMAL,
         VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
-    Image depthImage(logicalDevice, swapChain.getExtent().width, swapChain.getExtent().height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
+    Image depthImage(logicalDevice, swapChain.getExtent().width, swapChain.getExtent().height, 1, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT);
 
     DeviceMemory depthMemory(logicalDevice, *selectedDevice, depthImage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    ImageView depthImageView(logicalDevice, depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+    ImageView depthImageView(logicalDevice, depthImage, 1, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 
     ShaderModule defaultVertShaderModule(logicalDevice, "depth.vert.bin");
     ShaderModule defaultFragShaderModule(logicalDevice, "depth.frag.bin");

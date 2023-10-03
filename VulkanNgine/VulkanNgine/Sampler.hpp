@@ -6,7 +6,7 @@
 class Sampler
 {
   public:
-    Sampler(const LogicalDevice& _logicalDevice);
+    Sampler(const LogicalDevice& _logicalDevice, uint32_t _levels);
 
     ~Sampler();
 

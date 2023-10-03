@@ -1,6 +1,6 @@
 #include "Image.hpp"
 
-Image::Image(const LogicalDevice& _logicalDevice, uint32_t _width, uint32_t _height, VkFormat _format, VkImageTiling _tiling, VkImageUsageFlags _usage)
+Image::Image(const LogicalDevice& _logicalDevice, uint32_t _width, uint32_t _height, uint32_t _level, VkFormat _format, VkImageTiling _tiling, VkImageUsageFlags _usage)
   : m_logicalDevice(_logicalDevice)
 {
     VkImageCreateInfo imageCreateInfo{};
@@ -9,7 +9,7 @@ Image::Image(const LogicalDevice& _logicalDevice, uint32_t _width, uint32_t _hei
     imageCreateInfo.extent.width = _width;
     imageCreateInfo.extent.height = _height;
     imageCreateInfo.extent.depth = 1;
-    imageCreateInfo.mipLevels = 1;
+    imageCreateInfo.mipLevels = _level;
     imageCreateInfo.arrayLayers = 1;
     imageCreateInfo.format = _format;
     imageCreateInfo.tiling = _tiling;

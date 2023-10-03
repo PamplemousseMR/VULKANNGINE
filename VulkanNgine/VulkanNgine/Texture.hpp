@@ -27,6 +27,8 @@ class Texture
 
     inline int height() const { return m_height; }
 
+    inline int level() const { return m_mipLevels; }
+
   private:
 
     unsigned char* m_data{nullptr};
@@ -36,4 +38,6 @@ class Texture
     int m_height{0};
 
     int m_chanels{0};
+
+    int m_mipLevels{0};
 };

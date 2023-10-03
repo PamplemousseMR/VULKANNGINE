@@ -10,6 +10,8 @@ Texture::Texture(const std::filesystem::path& _path)
     if (!m_data) {
         throw std::runtime_error("Failed to load the texture: " + _path.string());
     }
+
+    m_mipLevels = static_cast<int>(std::floor(std::log2(std::max(m_width, m_height)))) + 1;
 }
 
 Texture::~Texture()

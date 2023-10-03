@@ -7,7 +7,7 @@
 class Image
 {
   public:
-    Image(const LogicalDevice& _logicalDevice, uint32_t _width, uint32_t _height, VkFormat _format, VkImageTiling _tiling, VkImageUsageFlags _usage);
+    Image(const LogicalDevice& _logicalDevice, uint32_t _width, uint32_t _height, uint32_t _level, VkFormat _format, VkImageTiling _tiling, VkImageUsageFlags _usage);
 
     ~Image();
 
