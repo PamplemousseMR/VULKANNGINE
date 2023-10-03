@@ -45,4 +45,17 @@ set(VKNGINE_HEADER
         VulkanNgine/SwapChainImageViews.hpp
         VulkanNgine/Window.hpp)
 
-vkngine_add_library(TARGET ${VKNGINE_LIB_NAME}  TYPE STATIC SOURCES ${VKNGINE_SRC} HEADERS ${VKNGINE_HEADER} PUBLIC_LINKS glfw glm::glm Vulkan::Vulkan)
+set(VKNGINE_PUBLIC_LINKS
+        glfw
+        glm::glm
+        Vulkan::Vulkan)
+
+set(VKNGINE_PRIVATE_LINKS
+        stb)
+
+vkngine_add_library(TARGET ${VKNGINE_LIB_NAME}  
+                    TYPE STATIC 
+                    SOURCES ${VKNGINE_SRC} 
+                    HEADERS ${VKNGINE_HEADER} 
+                    PUBLIC_LINKS ${VKNGINE_PUBLIC_LINKS} 
+                    PRIVATE_LINKS ${VKNGINE_PRIVATE_LINKS})

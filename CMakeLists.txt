@@ -90,7 +90,7 @@ endmacro()
 macro(vkngine_add_library)
     set(_options)
     set(_oneValueArgs TARGET TYPE)
-    set(_multiValueArgs SOURCES HEADERS PUBLIC_LINKS)
+    set(_multiValueArgs SOURCES HEADERS PUBLIC_LINKS PRIVATE_LINKS)
     cmake_parse_arguments(arg "${_options}" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN})
 
     add_library(${arg_TARGET} ${arg_TYPE} ${arg_SOURCES} ${arg_HEADERS})
@@ -104,7 +104,7 @@ macro(vkngine_add_library)
 
     target_include_directories(${arg_TARGET} ${_includeType} ${CMAKE_CURRENT_SOURCE_DIR})
 
-    target_link_libraries(${arg_TARGET} PUBLIC ${arg_PUBLIC_LINKS})
+    target_link_libraries(${arg_TARGET} PUBLIC ${arg_PUBLIC_LINKS} PRIVATE ${arg_PRIVATE_LINKS})
 
     target_compile_options(${arg_TARGET} 
         ${_compileType} 
@@ -146,6 +146,6 @@ endmacro()
 #                ENGINE
 #=======================================
 
-add_subdirectory("VulkanNgine")
 add_subdirectory("stb")
+add_subdirectory("VulkanNgine")
 add_subdirectory("App")
