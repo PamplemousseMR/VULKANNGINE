@@ -88,19 +88,26 @@ macro(vkngine_add_executable)
 endmacro()
 
 macro(vkngine_add_library)
-    set(options)
-    set(oneValueArgs TARGET)
-    set(multiValueArgs SOURCES HEADERS PUBLIC_LINKS)
-    cmake_parse_arguments(arg "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+    set(_options)
+    set(_oneValueArgs TARGET TYPE)
+    set(_multiValueArgs SOURCES HEADERS PUBLIC_LINKS)
+    cmake_parse_arguments(arg "${_options}" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN})
 
-    add_library(${arg_TARGET} STATIC ${arg_SOURCES} ${arg_HEADERS})
+    add_library(${arg_TARGET} ${arg_TYPE} ${arg_SOURCES} ${arg_HEADERS})
 
-    target_include_directories(${arg_TARGET} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+    set(_includeType PUBLIC)
+    set(_compileType PRIVATE)
+    if(${arg_TYPE} STREQUAL INTERFACE)
+        set(_includeType INTERFACE)
+        set(_compileType INTERFACE)
+    endif()
+
+    target_include_directories(${arg_TARGET} ${_includeType} ${CMAKE_CURRENT_SOURCE_DIR})
 
     target_link_libraries(${arg_TARGET} PUBLIC ${arg_PUBLIC_LINKS})
 
     target_compile_options(${arg_TARGET} 
-        PRIVATE 
+        ${_compileType} 
         $<IF:$<NOT:$<CXX_COMPILER_ID:MSVC>>, 
             -Wall
             -Wextra
@@ -140,4 +147,5 @@ endmacro()
 #=======================================
 
 add_subdirectory("VulkanNgine")
+add_subdirectory("stb")
 add_subdirectory("App")

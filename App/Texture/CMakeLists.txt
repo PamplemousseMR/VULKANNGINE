@@ -14,6 +14,7 @@ set(VKNGINGE_SOURCES
     texture.frag)
 
  set(VKNGINGE_LINKS 
-    VKNgine)
+    VKNgine
+    stb)
 
 vkngine_add_executable(TARGET ${VKNGINE_APP_NAME} SOURCES ${VKNGINGE_SOURCES} SHADERS ${VKNGINGE_SHADERS} LINKS ${VKNGINGE_LINKS})
