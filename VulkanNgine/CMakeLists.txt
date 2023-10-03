@@ -14,10 +14,12 @@ set(VKNGINE_SRC
         VulkanNgine/Fence.cpp
         VulkanNgine/FrameBuffer.cpp
         VulkanNgine/Image.cpp
+        VulkanNgine/ImageView.cpp
         VulkanNgine/Instance.cpp
         VulkanNgine/LogicalDevice.cpp
         VulkanNgine/PhysicalDevice.cpp
         VulkanNgine/RenderPass.cpp
+        VulkanNgine/Sampler.cpp
         VulkanNgine/Semaphore.cpp
         VulkanNgine/ShaderModule.cpp
         VulkanNgine/Surface.cpp
@@ -36,10 +38,12 @@ set(VKNGINE_HEADER
         VulkanNgine/Fence.hpp
         VulkanNgine/FrameBuffer.hpp
         VulkanNgine/Image.hpp
+        VulkanNgine/ImageView.hpp
         VulkanNgine/Instance.hpp
         VulkanNgine/logger.hpp
         VulkanNgine/LogicalDevice.hpp
         VulkanNgine/RenderPass.hpp
+        VulkanNgine/Sampler.hpp
         VulkanNgine/Semaphore.hpp
         VulkanNgine/PhysicalDevice.hpp
         VulkanNgine/ShaderModule.hpp

@@ -133,8 +133,11 @@ std::vector<PhysicalDevice> PhysicalDevice::getDevices(const Instance& _instance
             }
         }
 
+        VkPhysicalDeviceFeatures supportedFeatures;
+        vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+
         PhysicalDevice physicalDevice(
-          device, physicalDeviceProperties.deviceName, queueFamilies, swapChainSupport, details);
+          device, physicalDeviceProperties.deviceName, queueFamilies, swapChainSupport, static_cast<bool>(supportedFeatures.samplerAnisotropy), details);
         devices.push_back(std::move(physicalDevice));
     }
 
@@ -146,6 +149,7 @@ PhysicalDevice::PhysicalDevice(PhysicalDevice&& _d)
   , m_name(std::move(_d.m_name))
   , m_queueFamilies(std::move(_d.m_queueFamilies))
   , m_swapChainSupport(std::move(_d.m_swapChainSupport))
+  , m_samplerAnisotropySupport(std::move(_d.m_samplerAnisotropySupport))
   , m_swapChainSupportDetails(std::move(_d.m_swapChainSupportDetails))
 {}
 
@@ -153,11 +157,13 @@ PhysicalDevice::PhysicalDevice(VkPhysicalDevice _physicalDevice,
                                const std::string& _name,
                                const std::vector<QueueFamily>& _queueFamilies,
                                bool _swapChainSupport,
+                               bool _samplerAnisotropySupport,
                                const SwapChainSupportDetails _swapChainSupportDetails)
   : m_physicalDevice(_physicalDevice)
   , m_name(_name)
   , m_queueFamilies(_queueFamilies)
   , m_swapChainSupport(_swapChainSupport)
+  , m_samplerAnisotropySupport(_samplerAnisotropySupport)
   , m_swapChainSupportDetails(_swapChainSupportDetails)
 {}
 

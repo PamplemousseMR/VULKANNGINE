@@ -146,6 +146,7 @@ LogicalDevice::LogicalDevice(const PhysicalDevice& _physicalDevice)
         deviceQueueCreateInfos.push_back(deviceQueueCreateInfo);
     }
     VkPhysicalDeviceFeatures physicalDeviceFeatures{};
+    physicalDeviceFeatures.samplerAnisotropy = _physicalDevice.hasSamplerAnisotropySupport();
 
     std::vector<const char*> requiredExtension{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
