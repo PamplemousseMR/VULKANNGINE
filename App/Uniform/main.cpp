@@ -209,11 +209,11 @@ int main()
     Pipeline pipeline(
       logicalDevice, defaultVertShaderModule, defaultFragShaderModule, renderPass, swapChain.getExtent());
 
-    DescriptorPool descriptoPool(
+    DescriptorPool descriptorPool(
       logicalDevice, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, static_cast<uint32_t>(swapChainImageViews.get().size()));
 
     DescriptorSets descriptorSets(logicalDevice,
-                                  descriptoPool,
+                                  descriptorPool,
                                   static_cast<uint32_t>(swapChainImageViews.get().size()),
                                   pipeline.getDescriptorSetlayout());
 
