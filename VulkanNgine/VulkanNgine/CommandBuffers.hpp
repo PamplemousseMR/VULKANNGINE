@@ -6,7 +6,7 @@
 class CommandBuffers
 {
   public:
-    CommandBuffers(const LogicalDevice& _logicalDevice, const CommandPool& _commandPool, size_t count);
+    CommandBuffers(const LogicalDevice& _logicalDevice, const CommandPool& _commandPool, size_t _count);
 
     ~CommandBuffers();
 
@@ -19,6 +19,10 @@ class CommandBuffers
     CommandBuffers& operator=(CommandBuffers&&) = delete;
 
     inline const std::vector<VkCommandBuffer>& get() const { return m_commandBuffers; }
+
+    void beginSingleTimeCommand(size_t _index) const;
+
+    void endSingleTimeCommand(size_t _index) const;
 
   private:
     const LogicalDevice& m_logicalDevice;

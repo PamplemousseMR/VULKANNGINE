@@ -2,6 +2,8 @@
 
 #include <filesystem>
 
+#include <vulkan/vulkan.hpp>
+
 class Texture
 {
   public:
@@ -16,6 +18,14 @@ class Texture
     Texture& operator=(const Texture&) = delete;
 
     Texture& operator=(Texture&&) = delete;
+
+    inline VkDeviceSize getSize() const { return static_cast<VkDeviceSize>(m_width * m_height * m_chanels); }
+
+    inline const unsigned char* data() const { return m_data; }
+
+    inline int width() const { return m_width; }
+
+    inline int height() const { return m_height; }
 
   private:
 

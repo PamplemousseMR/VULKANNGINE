@@ -13,6 +13,7 @@ set(VKNGINE_SRC
         VulkanNgine/DeviceMemory.cpp
         VulkanNgine/Fence.cpp
         VulkanNgine/FrameBuffer.cpp
+        VulkanNgine/Image.cpp
         VulkanNgine/Instance.cpp
         VulkanNgine/LogicalDevice.cpp
         VulkanNgine/PhysicalDevice.cpp
@@ -34,6 +35,7 @@ set(VKNGINE_HEADER
         VulkanNgine/DeviceMemory.hpp
         VulkanNgine/Fence.hpp
         VulkanNgine/FrameBuffer.hpp
+        VulkanNgine/Image.hpp
         VulkanNgine/Instance.hpp
         VulkanNgine/logger.hpp
         VulkanNgine/LogicalDevice.hpp

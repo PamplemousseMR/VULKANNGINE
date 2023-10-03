@@ -3,6 +3,7 @@
 #include "Buffer.hpp"
 #include "LogicalDevice.hpp"
 #include "PhysicalDevice.hpp"
+#include "Image.hpp"
 
 class DeviceMemory
 {
@@ -11,6 +12,11 @@ class DeviceMemory
                  const PhysicalDevice& _physicalDevice,
                  const Buffer& _buffer,
                  VkMemoryPropertyFlags _properties);
+
+    DeviceMemory(const LogicalDevice& _logicalDevice,
+        const PhysicalDevice& _physicalDevice,
+        const Image& _image,
+        VkMemoryPropertyFlags _properties);
 
     ~DeviceMemory();
 
@@ -24,12 +30,10 @@ class DeviceMemory
 
     inline VkDeviceMemory get() const { return m_deviceMemory; }
 
-    void mapMemory(const void* _data) const;
+    void mapMemory(const void* _data, VkDeviceSize _size) const;
 
   private:
     const LogicalDevice& m_logicalDevice;
-
-    const Buffer& m_buffer;
 
     VkDeviceMemory m_deviceMemory;
 };

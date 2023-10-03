@@ -95,17 +95,13 @@ int main()
                                          vertexStagingBuffer,
                                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
-        vertexStagingMemory.mapMemory(vertices.data());
+        vertexStagingMemory.mapMemory(vertices.data(), vertexStagingBuffer.getSize());
 
         CommandPool transferCommandPool(logicalDevice, VK_QUEUE_TRANSFER_BIT);
 
         CommandBuffers transferCommandBuffers(logicalDevice, transferCommandPool, 1);
 
-        VkCommandBufferBeginInfo commandBufferBeginInfo{};
-        commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-        vkBeginCommandBuffer(transferCommandBuffers.get()[0], &commandBufferBeginInfo);
+        transferCommandBuffers.beginSingleTimeCommand(0);
 
         VkBufferCopy bufferCopy{};
         bufferCopy.srcOffset = 0;
@@ -113,15 +109,7 @@ int main()
         bufferCopy.size = bufferSize;
         vkCmdCopyBuffer(transferCommandBuffers.get()[0], vertexStagingBuffer.get(), vertexBuffer.get(), 1, &bufferCopy);
 
-        vkEndCommandBuffer(transferCommandBuffers.get()[0]);
-
-        VkSubmitInfo submitInfo{};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &transferCommandBuffers.get()[0];
-
-        vkQueueSubmit(logicalDevice.getTransferQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(logicalDevice.getTransferQueue());
+        transferCommandBuffers.endSingleTimeCommand(0);
     }
 
     SwapChain swapChain(*selectedDevice, surface, logicalDevice);

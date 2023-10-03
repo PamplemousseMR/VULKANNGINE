@@ -88,7 +88,7 @@ int main()
                               *selectedDevice,
                               vertexBuffer,
                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-    vertexMemory.mapMemory(vertices.data());
+    vertexMemory.mapMemory(vertices.data(), vertexBuffer.getSize());
 
     SwapChain swapChain(*selectedDevice, surface, logicalDevice);
 
